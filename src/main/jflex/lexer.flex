@@ -92,6 +92,9 @@ READ					= "READ" | "read"
 WHILE					= "WHILE" | "while"
 TAM						= "TRIANGLEAREAMAXIMUM" | "triangleAreaMaximum"
 CON						= "CONVDATE" | "convDate"
+
+COMEN_INI				= "#+"
+COMEN_FIN				= "+#"
 %%
 /* -> FIN de las declaraciones <- */
 
