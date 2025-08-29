@@ -5,6 +5,7 @@ import lyc.compiler.ParserSym;
 import lyc.compiler.model.*;
 import static lyc.compiler.constants.Constants.*;
 
+/* -> Comienzo de las declaraciones <- */
 %%
 
 %public
@@ -28,27 +29,71 @@ import static lyc.compiler.constants.Constants.*;
   }
 %}
 
+/* BASICO */
+LETRA 					= [a-zA-Z]
+NUMERO 					= [0-9]
+NATURAL 				= [1-9]
 
-LineTerminator = \r|\n|\r\n
-InputCharacter = [^\r\n]
-Identation =  [ \t\f]
+EOL 					= \r|\n|\r\n
+CIN 					= [^\r\n]
+TAB 					= [ \t\f]
 
-Plus = "+"
-Mult = "*"
-Sub = "-"
-Div = "/"
-Assig = "="
-OpenBracket = "("
-CloseBracket = ")"
-Letter = [a-zA-Z]
-Digit = [0-9]
+/*CARACTERES*/
+CA_PA					= "("
+CA_PC					= ")"
+CA_CA					= "["
+CA_CC					= "]"
+CA_LA					= "{"
+CA_LC					= "}"
+CA_CO					= ","
+CA_DP					= ":"
+CA_PC					= ";"
+CA_COM					= "\""
 
-WhiteSpace = {LineTerminator} | {Identation}
-Identifier = {Letter} ({Letter}|{Digit})*
-IntegerConstant = {Digit}+
+/* ARITMETICA */
+OP_ASI					= "=" | ":="
+OP_SUM 					= "+"
+OP_RES					= "-"
+OP_MUL					= "*"
+OP_DIV					= "/"
 
+/* INCREMENTALES ?*/ 
+
+/* COMPARACION */
+CP_MEN					= "<"
+CP_MENI					= "<="
+CP_MAY					= ">"
+CP_MAYI					= ">="
+CP_IGUA					= "=="
+CP_DIST					= "!="
+CP_Y					= "AND" | "and"
+CP_O					= "OR" | "or"
+CP_NO					= "NOT" | "not"
+CP_BITT					= "TRUE" | "true"
+CP_BITF					= "FALSE" | "false"
+
+/* CONSTANTES NUMERICAS */
+CONST_FLO             	= -?({NUMERO})+"."({NUMERO})*|({NUMERO})*"."({NUMERO})+
+CONST_INT               = -?{NATURAL}{NUMERO}*|[0]
+CONST_STR               = {CA_COM}[^']*{CA_COM}
+ID                      = {LETRA}({LETRA}|{NUMERO})*
+
+/* PALABRAS RESERVADAS - TIPOS DE DATOS */
+INT						= "Int" | "INT" | "int"
+FLOAT					= "Float"	| "FLOAT" | "float"
+STRING					= "String" | "STRING" | "string"
+
+/* PALABRAS RESERVADAS - FLUJO DE PROGRAMA */
+INI						= "INIT" | "init"
+IF						= "IF"	| "if"
+ELSE					= "ELSE" | "else"
+WRITE					= "WRITE" | "write"
+READ					= "READ" | "read"
+WHILE					= "WHILE" | "while"
+TAM						= "TRIANGLEAREAMAXIMUM" | "triangleAreaMaximum"
+CON						= "CONVDATE" | "convDate"
 %%
-
+/* -> FIN de las declaraciones <- */
 
 /* keywords */
 
