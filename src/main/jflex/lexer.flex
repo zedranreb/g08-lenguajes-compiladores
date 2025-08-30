@@ -31,7 +31,7 @@ import static lyc.compiler.constants.Constants.*;
    private void validarEntero(String texto) throws InvalidIntegerException {
     try {
         int valor = Integer.parseInt(texto);
-        if (valor < Short.MIN_VALUE || valor > Short.MAX_VALUE) {
+        if (valor < Short.MIN_VALUE || valor > Short.MAX_VALUE) { 
             throw new InvalidIntegerException("La constante entera '" + texto + "' excede el tamaño de 16 bits.");
         }
     } catch (NumberFormatException e) {
@@ -53,6 +53,17 @@ import static lyc.compiler.constants.Constants.*;
       if (content.length() > 50) {
           throw new CompilerException("La constante de cadena excede el tamaño máximo de 50 caracteres.");
       }
+  }
+  
+  private agregarAlaTabla(){
+  	// 1ra opcion
+  	//tabla creada
+  	//crear la tabla aca
+  	//rellenarla aca
+  	//envia
+  	//2da opcion
+  	//relleno
+  	
   }
   
 %}
@@ -126,6 +137,7 @@ COMEN_FIN				= "+#"
 %%
 /* -> FIN de las declaraciones <- */
 
+ %state COMENTARIO
 /* keywords */
 
 <YYINITIAL> {                                 
@@ -165,7 +177,7 @@ COMEN_FIN				= "+#"
   {CP_BITT}					                 { return symbol(ParserSym.CP_BITT); }
   
   /* CONSTANTES NUMERICAS */
-  {CONST_FLO}             					 {validarFloat(yytext()); /* TODO: Implementar tabla de simbolos */ ; return symbol(ParserSym.CONST_FLO, yytext()) }
+  {CONST_FLO}             					 {validarFloat(yytext()); agregarTablaSimbolo(); return symbol(ParserSym.CONST_FLO, yytext()) }
   {CONST_INT}               				 {validarEntero(yytext()); /* TODO: Implementar tabla de simbolos */ ; return symbol(ParserSym.INTEGER_CONSTANT, yytext()) }
   {CONST_STR}               				 { validarString(yytext()); /* TODO: Implementar tabla de simbolos */ ; return symbol(ParserSym.CONST_STR, yytext()) }
   {ID}                     					 { /* TODO: Implementar tabla de simbolos */ ; return symbol(ParserSym.IDENTIFIER, yytext()) }
