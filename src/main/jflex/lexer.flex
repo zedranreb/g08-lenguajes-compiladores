@@ -27,6 +27,10 @@ import static lyc.compiler.constants.Constants.*;
   private Symbol symbol(int type, Object value) {
     return new Symbol(type, yyline, yycolumn, value);
   }
+  
+  private int validarEntero() {String texto} {
+  
+  }
 %}
 
 /* BASICO */
@@ -100,82 +104,65 @@ COMEN_FIN				= "+#"
 
 /* keywords */
 
-<YYINITIAL> {
-  /* identifiers */
-  {Identifier}                             { return symbol(ParserSym.IDENTIFIER, yytext()); }
-  /* Constants */
-  {IntegerConstant}                        { return symbol(ParserSym.INTEGER_CONSTANT, yytext()); }
-
-  /* operators */
-  {Plus}                                    { return symbol(ParserSym.PLUS); }
-  {Sub}                                     { return symbol(ParserSym.SUB); }
-  {Mult}                                    { return symbol(ParserSym.MULT); }
-  {Div}                                     { return symbol(ParserSym.DIV); }
-  {Assig}                                   { return symbol(ParserSym.ASSIG); }
-  {OpenBracket}                             { return symbol(ParserSym.OPEN_BRACKET); }
-  {CloseBracket}                            { return symbol(ParserSym.CLOSE_BRACKET); }
-
-  /* whitespace */
-  {WhiteSpace}                   { /* ignore */ }
-                                  
+<YYINITIAL> {                                 
   {EOL} 						 { return symbol(ParserSym.EOF); }
   {CIN} 						 { }
   {TAB} 						 { }
   
   /*CARACTERES*/
-  {CA_PA}						
-  {CA_PC}					
-  {CA_CA}					
-  {CA_CC}					
-  {CA_LA}					
-  {CA_LC}					
-  {CA_CO}					
-  {CA_DP}					
-  {CA_PY}					
-  {CA_COM}				
+  {CA_PA}									{ return symbol(ParserSym.OPEN_BRACKET); }
+  {CA_PC}									{ return symbol(ParserSym.CLOSE_BRACKET); }
+  {CA_CA}					                { return symbol(ParserSym.CA_CA); }
+  {CA_CC}					                { return symbol(ParserSym.CA_CC); }
+  {CA_LA}					                { return symbol(ParserSym.CA_LA); }
+  {CA_LC}					                { return symbol(ParserSym.CA_LC); }
+  {CA_CO}					                { return symbol(ParserSym.CA_CO); }
+  {CA_DP}					                { return symbol(ParserSym.CA_DP); }
+  {CA_PY}					                { return symbol(ParserSym.CA_PY); }
+  {CA_COM}				                    { return symbol(ParserSym.CA_COM); }
   
   /* ARITMETICA */
-  {OP_ASI}					
-  {OP_SUM} 					
-  {OP_RES}					
-  {OP_MUL}					
-  {OP_DIV}					
-  
-  {CP_MEN}					
-  {CP_MENI}					
-  {CP_MAY}					
-  {CP_MAYI}					
-  {CP_IGUA}					
-  {CP_DIST}					
-  {CP_Y}					
-  {CP_O}					
-  {CP_NO}					
-  {CP_BITT}					
-  {CP_BITF}					
+  {OP_ASI}									 { return symbol(ParserSym.ASSIG); }
+  {OP_SUM} 					                 { return symbol(ParserSym.PLUS); }
+  {OP_RES}					                 { return symbol(ParserSym.SUB); }
+  {OP_MUL}					                 { return symbol(ParserSym.MULT); }
+  {OP_DIV}					                 { return symbol(ParserSym.DIV); }
+                                             
+  {CP_MEN}					                 { return symbol(ParserSym.CP_MEN); }
+  {CP_MENI}					                 { return symbol(ParserSym.CP_MENI); }
+  {CP_MAY}					                 { return symbol(ParserSym.CP_MAY); }
+  {CP_MAYI}					                 { return symbol(ParserSym.CP_MAYI); }
+  {CP_IGUA}					                 { return symbol(ParserSym.CP_IGUA); }
+  {CP_DIST}					                 { return symbol(ParserSym.CP_DIST); }
+  {CP_Y}					                 { return symbol(ParserSym.CP_Y); }
+  {CP_O}					                 { return symbol(ParserSym.CP_O); }
+  {CP_NO}					                 { return symbol(ParserSym.CP_NO); }
+  {CP_BITT}					                 { return symbol(ParserSym.CP_BITT); }
+  {CP_BITT}					                 { return symbol(ParserSym.CP_BITT); }
   
   /* CONSTANTES NUMERICAS */
-  {CONST_FLO}             	
-  {CONST_INT}               
-  {CONST_STR}               
-  {ID}                     
+  {CONST_FLO}             					 { /* TODO: Implementar validacion */; /* TODO: Implementar tabla de simbolos */ ; return symbol(ParserSym.CONST_FLO, yytext()) }
+  {CONST_INT}               				 { /* TODO: Implementar validacion */; /* TODO: Implementar tabla de simbolos */ ; return symbol(ParserSym.INTEGER_CONSTANT, yytext()) }
+  {CONST_STR}               				 { /* TODO: Implementar validacion */; /* TODO: Implementar tabla de simbolos */ ; return symbol(ParserSym.CONST_STR, yytext()) }
+  {ID}                     					 { /* TODO: Implementar tabla de simbolos */ ; return symbol(ParserSym.IDENTIFIER, yytext()) }
   
   /* PALABRAS RESERVADAS */
-  {INT}						
-  {FLOAT}					
-  {STRING}					
+  {INT}										 { return symbol(ParserSym.INT); }
+  {FLOAT}								     { return symbol(ParserSym.FLOAT); }
+  {STRING}									 { return symbol(ParserSym.STRING); }
   
   /* PALABRAS RESERVADAS */
-  {INI}						
-  {IF}						
-  {ELSE}					
-  {WRITE}					
-  {READ}					
-  {WHILE}					
-  {TAM}						
-  {CON}						
-
-{COMEN_INI}				
-{COMEN_FIN}				
+  {INI}										 { return symbol(ParserSym.INI); }
+  {IF}										 { return symbol(ParserSym.FIN); }
+  {ELSE}					                 { return symbol(ParserSym.ELSE); }
+  {WRITE}					                 { return symbol(ParserSym.WRITE); }
+  {READ}					                 { return symbol(ParserSym.READ); }
+  {WHILE}					                 { return symbol(ParserSym.WHILE); }
+  {TAM}						                 { return symbol(ParserSym.TAM); }
+  {CON}						                 { return symbol(ParserSym.COM); }
+                                             
+  {COMEN_INI}				                 {  } /* Falta incoropar el estado  de <COMENTARIO> */
+  {COMEN_FIN}				                 {  }
 }
 
 
