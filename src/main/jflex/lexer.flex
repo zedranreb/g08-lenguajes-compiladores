@@ -117,6 +117,65 @@ COMEN_FIN				= "+#"
 
   /* whitespace */
   {WhiteSpace}                   { /* ignore */ }
+                                  
+  {EOL} 						 { return symbol(ParserSym.EOF); }
+  {CIN} 						 { }
+  {TAB} 						 { }
+  
+  /*CARACTERES*/
+  {CA_PA}						
+  {CA_PC}					
+  {CA_CA}					
+  {CA_CC}					
+  {CA_LA}					
+  {CA_LC}					
+  {CA_CO}					
+  {CA_DP}					
+  {CA_PY}					
+  {CA_COM}				
+  
+  /* ARITMETICA */
+  {OP_ASI}					
+  {OP_SUM} 					
+  {OP_RES}					
+  {OP_MUL}					
+  {OP_DIV}					
+  
+  {CP_MEN}					
+  {CP_MENI}					
+  {CP_MAY}					
+  {CP_MAYI}					
+  {CP_IGUA}					
+  {CP_DIST}					
+  {CP_Y}					
+  {CP_O}					
+  {CP_NO}					
+  {CP_BITT}					
+  {CP_BITF}					
+  
+  /* CONSTANTES NUMERICAS */
+  {CONST_FLO}             	
+  {CONST_INT}               
+  {CONST_STR}               
+  {ID}                     
+  
+  /* PALABRAS RESERVADAS */
+  {INT}						
+  {FLOAT}					
+  {STRING}					
+  
+  /* PALABRAS RESERVADAS */
+  {INI}						
+  {IF}						
+  {ELSE}					
+  {WRITE}					
+  {READ}					
+  {WHILE}					
+  {TAM}						
+  {CON}						
+
+{COMEN_INI}				
+{COMEN_FIN}				
 }
 
 
