@@ -47,7 +47,7 @@ CA_LA					= "{"
 CA_LC					= "}"
 CA_CO					= ","
 CA_DP					= ":"
-CA_PC					= ";"
+CA_PY					= ";"
 CA_COM					= "\""
 
 /* ARITMETICA */
