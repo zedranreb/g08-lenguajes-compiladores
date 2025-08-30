@@ -28,9 +28,33 @@ import static lyc.compiler.constants.Constants.*;
     return new Symbol(type, yyline, yycolumn, value);
   }
   
-  private int validarEntero() {String texto} {
-  
+   private void validarEntero(String texto) throws InvalidIntegerException {
+    try {
+        int valor = Integer.parseInt(texto);
+        if (valor < Short.MIN_VALUE || valor > Short.MAX_VALUE) {
+            throw new InvalidIntegerException("La constante entera '" + texto + "' excede el tamaño de 16 bits.");
+        }
+    } catch (NumberFormatException e) {
+        throw new InvalidIntegerException("No es un numero entero valido.");
+    }
   }
+
+  
+  private void validarFloat() {String texto} throws InvalidFloatException{
+  	try {
+        Float.parseFloat(texto);
+    } catch (NumberFormatException e) {
+        throw new InvalidFloatException("No es un numero float valido");
+    }
+  }
+  
+  private void validarString() {String texto} throws  CompilerException{
+  	String content = texto.substring(1, texto.length() - 1);
+      if (content.length() > 50) {
+          throw new CompilerException("La constante de cadena excede el tamaño máximo de 50 caracteres.");
+      }
+  }
+  
 %}
 
 /* BASICO */
@@ -141,9 +165,9 @@ COMEN_FIN				= "+#"
   {CP_BITT}					                 { return symbol(ParserSym.CP_BITT); }
   
   /* CONSTANTES NUMERICAS */
-  {CONST_FLO}             					 { /* TODO: Implementar validacion */; /* TODO: Implementar tabla de simbolos */ ; return symbol(ParserSym.CONST_FLO, yytext()) }
-  {CONST_INT}               				 { /* TODO: Implementar validacion */; /* TODO: Implementar tabla de simbolos */ ; return symbol(ParserSym.INTEGER_CONSTANT, yytext()) }
-  {CONST_STR}               				 { /* TODO: Implementar validacion */; /* TODO: Implementar tabla de simbolos */ ; return symbol(ParserSym.CONST_STR, yytext()) }
+  {CONST_FLO}             					 {validarFloat(yytext()); /* TODO: Implementar tabla de simbolos */ ; return symbol(ParserSym.CONST_FLO, yytext()) }
+  {CONST_INT}               				 {validarEntero(yytext()); /* TODO: Implementar tabla de simbolos */ ; return symbol(ParserSym.INTEGER_CONSTANT, yytext()) }
+  {CONST_STR}               				 { validarString(yytext()); /* TODO: Implementar tabla de simbolos */ ; return symbol(ParserSym.CONST_STR, yytext()) }
   {ID}                     					 { /* TODO: Implementar tabla de simbolos */ ; return symbol(ParserSym.IDENTIFIER, yytext()) }
   
   /* PALABRAS RESERVADAS */
@@ -161,10 +185,13 @@ COMEN_FIN				= "+#"
   {TAM}						                 { return symbol(ParserSym.TAM); }
   {CON}						                 { return symbol(ParserSym.COM); }
                                              
-  {COMEN_INI}				                 {  } /* Falta incoropar el estado  de <COMENTARIO> */
-  {COMEN_FIN}				                 {  }
+  {COMEN_INI}				                 {yybegin(COMENTARIO);}
 }
-
+<COMENTARIO> {  
+  {COMEN_FIN}      {yybegin(YYNITIAL);}
+  .                 {}
+  {EOL}             {}
+}
 
 /* error fallback */
 [^]                              { throw new UnknownCharacterException(yytext()); }
