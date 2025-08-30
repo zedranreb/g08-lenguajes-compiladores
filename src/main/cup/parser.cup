@@ -4,6 +4,11 @@ import java_cup.runtime.*;
 
 class Parser;
 
+parser code { 
+  public static Class getSymbolContainer() {
+    return lyc.compiler.ParserSym.class;
+  }
+}
 
 // Terminals
 terminal ASSIG;
@@ -15,6 +20,51 @@ terminal OPEN_BRACKET;
 terminal CLOSE_BRACKET;
 terminal INTEGER_CONSTANT;
 terminal IDENTIFIER;
+
+terminal CA_PA;					
+terminal CA_PC;					
+terminal CA_CA;					
+terminal CA_CC;					
+terminal CA_LA;					
+terminal CA_LC;					
+terminal CA_CO;					
+terminal CA_DP;					
+terminal CA_PY;					
+terminal CA_COM;					
+
+terminal OP_ASI;					
+terminal OP_SUM; 					
+terminal OP_RES;					
+terminal OP_MUL;					
+terminal OP_DIV;					
+
+terminal CP_MEN;					
+terminal CP_MENI;					
+terminal CP_MAY;					
+terminal CP_MAYI;					
+terminal CP_IGUA;					
+terminal CP_DIST;					
+terminal CP_Y;					
+terminal CP_O;					
+terminal CP_NO;					
+terminal CP_BITT;					
+terminal CP_BITF;					
+terminal CONST_STR;               
+terminal CONST_INT;               
+terminal CONST_FLO;             	
+                
+terminal INT;						
+terminal FLOAT;					
+terminal STRING;					
+terminal INI;						
+terminal IF;						
+terminal ELSE;					
+terminal WRITE;					
+terminal READ;					
+terminal WHILE;					
+terminal TAM;						
+terminal CON;						
+
 
 // Non Terminals
 non terminal sentence;
