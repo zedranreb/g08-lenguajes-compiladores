@@ -51,7 +51,7 @@ import static lyc.compiler.constants.Constants.*;
   private void validarString(String texto) throws  CompilerException{
   	String content = texto.substring(1, texto.length() - 1);
       if (content.length() > 50) {
-          throw new CompilerException("La constante de cadena excede el tamaño máximo de 50 caracteres.");
+          throw new InvalidIntegerException("La constante de cadena excede el tamaño máximo de 50 caracteres.");
       }
   }
   
@@ -75,12 +75,12 @@ NUMERO 					= [0-9]
 NATURAL 				= [1-9]
 
 EOL 					= \r|\n|\r\n
-CIN 					= [^\r\n]
 TAB 					= [ \t\f]
+IGNORAR					= EOL | TAB
 
 /*CARACTERES*/
-CA_PA					= "("
-CA_PC					= ")"
+OPEN_BRACKET			= "("
+CLOSE_BRACKET			= ")"
 CA_CA					= "["
 CA_CC					= "]"
 CA_LA					= "{"
@@ -91,11 +91,11 @@ CA_PY					= ";"
 CA_COM					= "\""
 
 /* ARITMETICA */
-OP_ASI					= "=" | ":="
-OP_SUM 					= "+"
-OP_RES					= "-"
-OP_MUL					= "*"
-OP_DIV					= "/"
+ASSIG					= "=" | ":="
+PLUS 					= "+"
+SUB						= "-"
+MULT					= "*"
+DIV						= "/"
 
 /* INCREMENTALES ?*/ 
 
@@ -113,8 +113,8 @@ CP_BITT					= "TRUE" | "true"
 CP_BITF					= "FALSE" | "false"
 
 /* CONSTANTES NUMERICAS */
-CONST_FLO             	= -?({NUMERO})+"."({NUMERO})*|({NUMERO})*"."({NUMERO})+
-CONST_INT               = -?{NATURAL}{NUMERO}*|[0]
+CONST_FLO             	= ({NUMERO})+"."({NUMERO})*|({NUMERO})*"."({NUMERO})+
+CONST_INT               = {NATURAL}{NUMERO}*|[0]
 CONST_STR               = {CA_COM}[^']*{CA_COM}
 ID                      = {LETRA}({LETRA}|{NUMERO})*
 
@@ -142,13 +142,9 @@ COMEN_FIN				= "+#"
 /* keywords */
 
 <YYINITIAL> {                                 
-  {EOL} 						 { return symbol(ParserSym.EOF); }
-  {CIN} 						 { }
-  {TAB} 						 { }
-  
   /*CARACTERES*/
-  {CA_PA}									{ return symbol(ParserSym.OPEN_BRACKET); }
-  {CA_PC}									{ return symbol(ParserSym.CLOSE_BRACKET); }
+  {OPEN_BRACKET}							{ return symbol(ParserSym.OPEN_BRACKET); }
+  {CLOSE_BRACKET}							{ return symbol(ParserSym.CLOSE_BRACKET); }
   {CA_CA}					                { return symbol(ParserSym.CA_CA); }
   {CA_CC}					                { return symbol(ParserSym.CA_CC); }
   {CA_LA}					                { return symbol(ParserSym.CA_LA); }
@@ -159,11 +155,11 @@ COMEN_FIN				= "+#"
   {CA_COM}				                    { return symbol(ParserSym.CA_COM); }
   
   /* ARITMETICA */
-  {OP_ASI}									 { return symbol(ParserSym.ASSIG); }
-  {OP_SUM} 					                 { return symbol(ParserSym.PLUS); }
-  {OP_RES}					                 { return symbol(ParserSym.SUB); }
-  {OP_MUL}					                 { return symbol(ParserSym.MULT); }
-  {OP_DIV}					                 { return symbol(ParserSym.DIV); }
+  {ASSIG}									 { return symbol(ParserSym.ASSIG); }
+  {PLUS} 					                 { return symbol(ParserSym.PLUS); }
+  {SUB}					                	 { return symbol(ParserSym.SUB); }
+  {MULT}					                 { return symbol(ParserSym.MULT); }
+  {DIV}					                 	 { return symbol(ParserSym.DIV); }
                                              
   {CP_MEN}					                 { return symbol(ParserSym.CP_MEN); }
   {CP_MENI}					                 { return symbol(ParserSym.CP_MENI); }
@@ -178,8 +174,8 @@ COMEN_FIN				= "+#"
   {CP_BITT}					                 { return symbol(ParserSym.CP_BITT); }
   
   /* CONSTANTES NUMERICAS */
-  {CONST_FLO}             					 {validarFloat(yytext()); return symbol(ParserSym.CONST_FLO, yytext()); }
-  {CONST_INT}               				 {validarEntero(yytext()); /* TODO: Implementar tabla de simbolos */  return symbol(ParserSym.INTEGER_CONSTANT, yytext()); }
+  {CONST_FLO}             					 { validarFloat(yytext()); return symbol(ParserSym.CONST_FLO, yytext()); }
+  {CONST_INT}               				 { validarEntero(yytext()); /* TODO: Implementar tabla de simbolos */  return symbol(ParserSym.INTEGER_CONSTANT, yytext()); }
   {CONST_STR}               				 { validarString(yytext()); /* TODO: Implementar tabla de simbolos */ return symbol(ParserSym.CONST_STR, yytext()); }
   {ID}                     					 { /* TODO: Implementar tabla de simbolos */ return symbol(ParserSym.IDENTIFIER, yytext()); }
   
@@ -198,10 +194,12 @@ COMEN_FIN				= "+#"
   {TAM}						                 { return symbol(ParserSym.TAM); }
   {CON}						                 { return symbol(ParserSym.COM); }
                                              
-  {COMEN_INI}				                 {yybegin(COMENTARIO);}
+  {IGNORAR} 						 		 { }
+  {COMEN_INI}				                 { yybegin(COMENTARIO); }
 }
+
 <COMENTARIO> {  
-  {COMEN_FIN}      {yybegin(YYNITIAL);}
+  {COMEN_FIN}      {yybegin(YYINITIAL);}
   .                 {}
   {EOL}             {}
 }

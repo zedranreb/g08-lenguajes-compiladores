@@ -4,12 +4,6 @@ import java_cup.runtime.*;
 
 class Parser;
 
-parser code { 
-  public static Class getSymbolContainer() {
-    return lyc.compiler.ParserSym.class;
-  }
-}
-
 // Terminals
 terminal ASSIG;
 terminal PLUS;
