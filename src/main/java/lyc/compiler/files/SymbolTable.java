@@ -16,7 +16,6 @@ public class SymbolTable {
         this.length = length;
     }
     
-    // Getters
     public String getName() {
         return name;
     }
@@ -33,7 +32,6 @@ public class SymbolTable {
         return length;
     }
 
-    // Setters
     public void setValue(Object value) {
         this.value = value;
     }
