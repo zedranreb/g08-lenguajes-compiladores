@@ -1,1 +1,36 @@
+init {
+    c : int
+    d, e : float
+    casaDePepe : string
+}
 c=d*(e-21)/4
+
+r := "aguante boca"
+
+argentina:=1.2
+while( a > b ) {
+    primerWhile := 2
+}
+while( a != b AND b >= 17.1 ) {
+    segundoWhile := 3
+}
+
+while( x <= 32 OR b == 14 ) {
+    tercerWhile := 4
+}
+while( not 16 == a ) {
+    cuartoWhile := 5
+    while( not a == a ) {
+        cuartoWhileAnidado := 6
+        write("Lenguajes y compiladores")
+    }
+}
+
+#+
+
+write{}
+messi
++#
+write(b)
+read(b)
+triangleAreaMaximum([1,b;3.2,5;a,c];[1,2;3.5,b;2.8,5])

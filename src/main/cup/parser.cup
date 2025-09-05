@@ -112,13 +112,19 @@ programa ::= iniciar lista_sentencia;
 // ================ F: Declaración de variables
 // ========================================================================== //
 
-iniciar ::= INI CA_LA lista_declaracion CA_LC;
+iniciar ::= INI CA_LA lista_declaracion CA_LC
+{:System.out.println("Inicializacion: completado");:};
+
 lista_declaracion ::= lista_declaracion declaracion | 
 					declaracion;
 
-declaracion ::= lista_ids CA_DP tipo_dato;
-lista_ids ::= lista_ids CA_CO IDENTIFIER | 
-				IDENTIFIER;
+declaracion ::= lista_ids CA_DP tipo_dato
+{: System.out.println("Declaracion: completado"); :};
+
+lista_ids ::= lista_ids CA_CO IDENTIFIER:id
+{: System.out.println(id); :} | 
+				IDENTIFIER:id
+				{: System.out.println(id); :};
 			
 lista_sentencia ::= lista_sentencia sentence | 
 				sentence;
@@ -128,7 +134,8 @@ lista_sentencia ::= lista_sentencia sentence |
 // ========================================================================== //
 
 sentence ::= assignment;
-assignment ::= IDENTIFIER:id ASSIG expression {: System.out.println("Asignacion: " + id); :};
+assignment ::= IDENTIFIER:id ASSIG expression 
+{: System.out.println("Asignacion: " + id + " completado"); :};
 
 // ========================================================================== //
 // ================ D: Operaciones Aritméticas
@@ -149,13 +156,16 @@ factor ::= OPEN_BRACKET expression CLOSE_BRACKET {: System.out.println("(Express
 // ================ E: Tipos de datos
 // ========================================================================== //
 
-tipo_dato ::= INT | FLOAT | STRING;
+tipo_dato ::= INT:i {: System.out.println("int" ); :} 
+			| FLOAT:f {: System.out.println("float"); :} 
+			| STRING:s {: System.out.println("string"); :} ;
 
 // ========================================================================== //
 // ================ H: Condiciones
 // ========================================================================== //
 
-condicion ::= OPEN_BRACKET conjunto_condicion CLOSE_BRACKET;
+condicion ::= OPEN_BRACKET conjunto_condicion CLOSE_BRACKET
+			{: System.out.println("Condicion: completado"); :};
 
 conjunto_condicion ::= condicion_simple
 					| condicion_multiple
@@ -169,7 +179,8 @@ condicion_multiple ::= condicion_simple:cs CP_Y condicion_simple
 					|  condicion_simple:cs CP_O condicion_simple 
 					{: System.out.println("Condicion Multiple con OR"); :};
 
-condicion_negada ::= CP_NO condicion_simple;
+condicion_negada ::= CP_NO condicion_simple
+				{: System.out.println("Condicion Simple Negada"); :};
 
 operador_logico ::= CP_MEN | CP_MENI | CP_MAY | CP_MAYI | CP_IGUA | CP_DIST;
 
@@ -177,10 +188,13 @@ operador_logico ::= CP_MEN | CP_MENI | CP_MAY | CP_MAYI | CP_IGUA | CP_DIST;
 // ========================================================================== //
 // ================ G: Entrada y salida
 // ========================================================================== //
-sentence ::= READ OPEN_BRACKET IDENTIFIER CLOSE_BRACKET;
-sentence ::= WRITE OPEN_BRACKET escribe CLOSE_BRACKET;
+sentence ::= READ OPEN_BRACKET IDENTIFIER:id CLOSE_BRACKET
+			{: System.out.println("READ: " + id + " completado");:};
+sentence ::= WRITE OPEN_BRACKET escribe CLOSE_BRACKET
+			{: System.out.println("WRITE: completado");:};
 
-escribe ::= CONST_STR | IDENTIFIER;
+escribe ::= CONST_STR:s {: System.out.println("Cadena: " + s);:}
+			| IDENTIFIER:id {: System.out.println("Id: " + id);:};
 
 // ========================================================================== //
 // ================ A: While
