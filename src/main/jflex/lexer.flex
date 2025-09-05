@@ -171,7 +171,7 @@ COMEN_FIN				= "+#"
   {CP_O}					                 { return symbol(ParserSym.CP_O); }
   {CP_NO}					                 { return symbol(ParserSym.CP_NO); }
   {CP_BITT}					                 { return symbol(ParserSym.CP_BITT); }
-  {CP_BITT}					                 { return symbol(ParserSym.CP_BITT); }
+  {CP_BITF}					                 { return symbol(ParserSym.CP_BITF); }
   /* PALABRAS RESERVADAS */
   {INI}										 { return symbol(ParserSym.INI); }
   {IF}										 { return symbol(ParserSym.IF); }
