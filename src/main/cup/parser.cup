@@ -209,7 +209,14 @@ sentence ::= WRITE OPEN_BRACKET escribe CLOSE_BRACKET
 
 escribe ::= CONST_STR:s {: System.out.println("Cadena: " + s);:}
 			| IDENTIFIER:id {: System.out.println("Id: " + id);:};
-
+			
+// ========================================================================== //
+// ================ B: If / if - else
+// ========================================================================== //
+sentence ::= IF condicion CA_LA lista_sentencia CA_LC 
+			{: System.out.println("IF: completado");:}
+			| IF condicion CA_LA lista_sentencia CA_LC ELSE CA_LA lista_sentencia CA_LC
+			{: System.out.println("IF / ELSE: completado");:};
 // ========================================================================== //
 // ================ A: While
 // ========================================================================== //
@@ -246,13 +253,18 @@ punto ::= eje:x CA_CO eje:y
 eje ::= CONST_FLO:cf 			{: RESULT = cf; :}
 			| INTEGER_CONSTANT:ci 	{: RESULT = ci; :}
 			| IDENTIFIER:id			{: RESULT = id; :};
+			
+// ========================================================================== //
+// ================ X: convDate
+// ========================================================================== //
+
 /*		
 convDate
 Se desea implementar una función llamada convDate que convierta una fecha representada 
 por tres números enteros (día, mes y año) en un único valor numérico con el formato YYYYMMDD.
 CONV(22-03-2021) = 20210322
 */
-sentence ::= CONV {: System.out.println("conv: "); :}OPEN_BRACKET fecha CLOSE_BRACKET;
+sentence ::= CONV OPEN_BRACKET fecha CLOSE_BRACKET {: System.out.println("ConvDate: Completado"); :};
 fecha ::= dia SUB mes SUB anio;
 dia ::= INTEGER_CONSTANT;
 mes ::= INTEGER_CONSTANT;
