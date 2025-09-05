@@ -2,22 +2,24 @@ package lyc.compiler.files;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.List;
+import java.util.ArrayList;
+import java.util.Objects;
+
+import lyc.compiler.tabla_simbolos.SymbolTable;
 
 public class SymbolTableGenerator implements FileGenerator{
 
-	private List<SymbolTable> symbolTable;
-	
-	public SymbolTableGenerator(List<SymbolTable> symbolTable) {
-		this.symbolTable = symbolTable;
-	}
-	
+    private final ArrayList<SymbolTable> symbolTable;
+
+    public SymbolTableGenerator(ArrayList<SymbolTable> tablaSimbolos) {
+        this.symbolTable = tablaSimbolos;
+    }
+
     @Override
     public void generate(FileWriter fileWriter) throws IOException {
-        fileWriter.write("|  NOMBRE  |  TIPO  |  VALOR  |  LONGITUD  ");
-        for (SymbolTable symbol : this.symbolTable) {
-        	fileWriter.write(symbol.getName()+"  |"+symbol.getType() + "  |" + symbol.getValue() + "  |"+symbol.getLength() +"  |"+"\n");
+        fileWriter.write("NOMBRE | TIPODATO | VALOR | LONGITUD \n");
+        for (SymbolTable symbol : symbolTable) {
+            fileWriter.write(symbol.getNombre() + " | " + symbol.getTipoDatoImprimir() + " | " + symbol.getValor() + " | " + Objects.toString(symbol.getLongitud(), "") + "\n");
         }
-
     }
 }

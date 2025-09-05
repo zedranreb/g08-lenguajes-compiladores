@@ -1,0 +1,66 @@
+package lyc.compiler.tabla_simbolos;
+
+public class SymbolTable {
+
+    private String nombre;
+    private String tipoDato;
+    private String valor;
+    private Integer longitud;
+
+    public SymbolTable(String nombre, String tipoDato, String valor, Integer longitud) {
+        this.nombre = nombre;
+        this.tipoDato = tipoDato;
+        this.valor = valor;
+        this.longitud = longitud;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public String getTipoDato() {
+
+        if(tipoDato=="CTE_INTEGER")
+            return "Int";
+        else if(tipoDato=="CTE_FLOAT")
+            return "Float";
+        else if(tipoDato=="CTE_STRING")
+            return "String";
+        else
+            return tipoDato;
+    }
+
+    public String getTipoDatoImprimir() {
+
+        return tipoDato;
+    }
+
+    public void setTipoDato(String tipoDato) {
+        this.tipoDato = tipoDato;
+    }
+
+    public String getValor() {
+        return valor;
+    }
+
+    public void setValor(String valor) {
+        this.valor = valor;
+    }
+
+    public Integer getLongitud() {
+        return longitud;
+    }
+
+    public void setLongitud(Integer longitud) {
+        this.longitud = longitud;
+    }
+
+    @Override
+    public String toString() {
+        return nombre + " | " + tipoDato + " | " + valor + " | " + longitud;
+    }
+}
