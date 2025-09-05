@@ -1,1 +1,61 @@
-c=d*(e-21)/4
+#+ Bloque de Inicializacion +#
+init {
+	#+ F: Declaración de variables +#
+	#+ E: Tipos de datos +#
+    c : int
+    d, e : float
+    casaDePepe : string
+}
+
+#+ C: Asignaciones +#
+#+ D: Operaciones Aritméticas +#
+c=d*(e-21)/4 + 5
+
+r := "aguante argentina"
+
+argentina:=1.2
+
+#+ A: While +#
+while( a > b ) {
+    primerWhile := 2
+}
+while( a != b AND b >= 17.1 ) {
+    segundoWhile := 3
+}
+
+while( x <= 32 OR b == 14 ) {
+    tercerWhile := 4
+}
+while( not 16 == a ) {
+    cuartoWhile := 5
+    while( not a == a ) {
+        cuartoWhileAnidado := 6
+        write("Lenguajes y compiladores")
+    }
+}
+
+#+ Comentarios multilinea
+
+write{} 
+messi
++#
+
+#+ G: Entrada y salida +#
+write(b)
+read(b)
+#+ Z: triangleAreaMaximum +#
+triangleAreaMaximum([1,b;3.2,5;a,c];[1,2;3.5,b;2.8,5])
+#+ X: convDate +#
+convDate(12-12-2025)
+#+ B: If / if - else +#
+if ( 4 + 3 < 5 ) {
+	write("If sin anidar")
+}
+
+if (4.1 < b) {
+	if( a == b) {
+		write("If anidado condicion verdadera")
+	} else {
+		write("If anidado condicion falsa")
+	}
+}

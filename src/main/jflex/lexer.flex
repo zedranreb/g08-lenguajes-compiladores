@@ -32,38 +32,39 @@ import static lyc.compiler.constants.Constants.*;
     try {
         int valor = Integer.parseInt(texto);
         if (valor < Short.MIN_VALUE || valor > Short.MAX_VALUE) { 
-            throw new InvalidIntegerException("La constante entera '" + texto + "' excede el tamaño de 16 bits.");
+            throw new InvalidIntegerException("LEX-ERR: La constante entera '" + texto + "' excede el tamaño de 16 bits.");
         }
     } catch (NumberFormatException e) {
-        throw new InvalidIntegerException("No es un numero entero valido.");
+        throw new InvalidIntegerException("LEX-ERR: '" + texto + "' no es un numero entero valido.");
     }
   }
 
-  
   private void validarFloat(String texto) throws InvalidFloatException{
   	try {
         Float.parseFloat(texto);
     } catch (NumberFormatException e) {
-        throw new InvalidFloatException("No es un numero float valido");
+        throw new InvalidFloatException("LEX-ERR: '" + texto + "' es un numero float valido");
     }
   }
   
-  private void validarString(String texto) throws  CompilerException{
-  	String content = texto.substring(1, texto.length() - 1);
-      if (content.length() > 50) {
-          throw new InvalidIntegerException("La constante de cadena excede el tamaño máximo de 50 caracteres.");
-      }
+  private void validarString(String texto) throws InvalidLengthException {
+	if (texto.length() - 2> 50) {
+		throw new InvalidLengthException("LEX-ERR: La constante '" 
+					+ texto 
+					+ "' (" 
+					+ texto.length()
+					+ ") excede el tamaño maximo de 50 caracteres.");
+	}
   }
   
-  private void agregarAlaTabla(){
-  	// 1ra opcion
-  	//tabla creada
-  	//crear la tabla aca
-  	//rellenarla aca
-  	//envia
-  	//2da opcion
-  	//relleno
-  	
+  private void validarID(String texto) throws InvalidLengthException {
+	if (texto.length() > 50) {
+		throw new InvalidLengthException("LEX-ERR: La variable '" 
+					+ texto 
+					+ "' (" 
+					+ texto.length()
+					+ ") excede el tamaño maximo de 50 caracteres.");
+	}
   }
   
 %}
@@ -76,7 +77,7 @@ NATURAL 				= [1-9]
 
 EOL 					= \r|\n|\r\n
 TAB 					= [ \t\f]
-IGNORAR					= EOL | TAB
+IGNORAR					= {EOL} | {TAB}
 
 /*CARACTERES*/
 OPEN_BRACKET			= "("
@@ -111,11 +112,10 @@ CP_O					= "OR" | "or"
 CP_NO					= "NOT" | "not"
 CP_BITT					= "TRUE" | "true"
 CP_BITF					= "FALSE" | "false"
-
 /* CONSTANTES NUMERICAS */
-CONST_FLO             	= ({NUMERO})+"."({NUMERO})*|({NUMERO})*"."({NUMERO})+
+CONST_FLO             	= ({NUMERO})+"."({NUMERO})* | "."({NUMERO})+
 CONST_INT               = {NATURAL}{NUMERO}*|[0]
-CONST_STR               = {CA_COM}[^']*{CA_COM}
+CONST_STR               = {CA_COM}[^\"]*{CA_COM}
 ID                      = {LETRA}({LETRA}|{NUMERO})*
 
 /* PALABRAS RESERVADAS - TIPOS DE DATOS */
@@ -131,7 +131,7 @@ WRITE					= "WRITE" | "write"
 READ					= "READ" | "read"
 WHILE					= "WHILE" | "while"
 TAM						= "TRIANGLEAREAMAXIMUM" | "triangleAreaMaximum"
-CON						= "CONVDATE" | "convDate"
+CONV					= "CONVDATE" | "convDate"
 
 COMEN_INI				= "#+"
 COMEN_FIN				= "+#"
@@ -171,35 +171,34 @@ COMEN_FIN				= "+#"
   {CP_O}					                 { return symbol(ParserSym.CP_O); }
   {CP_NO}					                 { return symbol(ParserSym.CP_NO); }
   {CP_BITT}					                 { return symbol(ParserSym.CP_BITT); }
-  {CP_BITT}					                 { return symbol(ParserSym.CP_BITT); }
-  
-  /* CONSTANTES NUMERICAS */
-  {CONST_FLO}             					 { validarFloat(yytext()); return symbol(ParserSym.CONST_FLO, yytext()); }
-  {CONST_INT}               				 { validarEntero(yytext()); /* TODO: Implementar tabla de simbolos */  return symbol(ParserSym.INTEGER_CONSTANT, yytext()); }
-  {CONST_STR}               				 { validarString(yytext()); /* TODO: Implementar tabla de simbolos */ return symbol(ParserSym.CONST_STR, yytext()); }
-  {ID}                     					 { /* TODO: Implementar tabla de simbolos */ return symbol(ParserSym.IDENTIFIER, yytext()); }
-  
-  /* PALABRAS RESERVADAS */
-  {INT}										 { return symbol(ParserSym.INT); }
-  {FLOAT}								     { return symbol(ParserSym.FLOAT); }
-  {STRING}									 { return symbol(ParserSym.STRING); }
-  
+  {CP_BITF}					                 { return symbol(ParserSym.CP_BITF); }
   /* PALABRAS RESERVADAS */
   {INI}										 { return symbol(ParserSym.INI); }
-  {IF}										 { return symbol(ParserSym.FIN); }
+  {IF}										 { return symbol(ParserSym.IF); }
   {ELSE}					                 { return symbol(ParserSym.ELSE); }
   {WRITE}					                 { return symbol(ParserSym.WRITE); }
   {READ}					                 { return symbol(ParserSym.READ); }
   {WHILE}					                 { return symbol(ParserSym.WHILE); }
   {TAM}						                 { return symbol(ParserSym.TAM); }
-  {CON}						                 { return symbol(ParserSym.COM); }
-                                             
+  {CONV}						             { return symbol(ParserSym.CONV); }
+  /* PALABRAS RESERVADAS */
+  {INT}										 { return symbol(ParserSym.INT); }
+  {FLOAT}								     { return symbol(ParserSym.FLOAT); }
+  {STRING}									 { return symbol(ParserSym.STRING); }
+  
+  /* CONSTANTES NUMERICAS */
+  {CONST_FLO}             					 { validarFloat(yytext()); return symbol(ParserSym.CONST_FLO, yytext()); }
+  {CONST_INT}               				 { validarEntero(yytext()); return symbol(ParserSym.INTEGER_CONSTANT, yytext()); }
+  {CONST_STR}               				 { validarString(yytext()); return symbol(ParserSym.CONST_STR, yytext()); }
+  {ID}                     					 { validarID(yytext()); return symbol(ParserSym.IDENTIFIER, yytext()); }
+                                
   {IGNORAR} 						 		 { }
   {COMEN_INI}				                 { yybegin(COMENTARIO); }
 }
 
 <COMENTARIO> {  
   {COMEN_FIN}      {yybegin(YYINITIAL);}
+  {COMEN_INI}		{ throw new InvalidCommentException("LEX-ERR: No pueden existir comentarios anidados."); }
   .                 {}
   {EOL}             {}
 }

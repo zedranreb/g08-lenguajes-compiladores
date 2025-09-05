@@ -4,6 +4,17 @@ import java_cup.runtime.*;
 
 class Parser;
 
+parser code {: 
+    @Override
+    public void syntax_error(Symbol s) {
+        System.err.println("=========== ERROR ===========");
+        System.err.println("Syntax error at line " + s.left + ", column " + s.right);
+        System.err.println("Unexpected token: " + s.value);
+        System.err.println("Expected tokens: " + expected_token_ids());
+    }
+
+:}
+
 // Terminals
 terminal ASSIG;
 terminal PLUS;
@@ -57,27 +68,204 @@ terminal WRITE;
 terminal READ;					
 terminal WHILE;					
 terminal TAM;						
-terminal CON;						
-
+terminal CONV;
 
 // Non Terminals
+non terminal programa;
+non terminal iniciar;
+non terminal lista_sentencia;
+non terminal lista_declaracion;
+non terminal declaracion;
+non terminal lista_ids;
+non terminal tipo_dato;
 non terminal sentence;
 non terminal assignment;
 non terminal expression;
 non terminal term;
 non terminal factor;
+non terminal condicion;
+non terminal conjunto_condicion;
+non terminal condicion_simple;
+non terminal condicion_multiple;
+non terminal condicion_negada;
+non terminal comparar;
+non terminal operador_logico;
+non terminal escribe;
+non terminal lista_cartesiana;
+non terminal triangulo;
+non terminal punto;
+non terminal eje;
+non terminal fecha;
+non terminal dia;
+non terminal mes;
+non terminal anio;
 
-// Start Symbol Definition
-start with sentence;
+/*
+	TEMAS COMUNES:
+	A: While
+	B: If / if - else
+	C: Asignaciones
+	D: Operaciones Aritméticas
+	E: Tipos de datos
+	F: Declaración de variables
+	G: Entrada y salida
+	H: Condiciones
 
-sentence ::= assignment {: System.out.println("End"); :};
-assignment ::= IDENTIFIER ASSIG expression {: System.out.println("Assignment"); :};
+	TEMAS ESPECIALES
+	Z: triangleAreaMaximum
+	X: convDate
+*/
+
+// ========================================================================== //
+// ================ Comienzo del programa
+// ========================================================================== //
+start with programa;
+
+programa ::= iniciar lista_sentencia;
+// ========================================================================== //
+// ================ F: Declaración de variables
+// ========================================================================== //
+
+iniciar ::= INI CA_LA lista_declaracion CA_LC
+{:System.out.println("Inicializacion: completado");:};
+
+lista_declaracion ::= lista_declaracion declaracion | 
+					declaracion;
+
+declaracion ::= lista_ids CA_DP tipo_dato
+{: System.out.println("Declaracion: completado"); :};
+
+lista_ids ::= lista_ids CA_CO IDENTIFIER:id
+{: System.out.println(id); :} | 
+				IDENTIFIER:id
+				{: System.out.println(id); :};
+			
+lista_sentencia ::= lista_sentencia sentence | 
+				sentence;
+
+// ========================================================================== //
+// ================ C: Asignaciones
+// ========================================================================== //
+
+sentence ::= assignment;
+assignment ::= IDENTIFIER:id ASSIG expression 
+{: System.out.println("Asignacion: " + id + " completado"); :};
+
+// ========================================================================== //
+// ================ D: Operaciones Aritméticas
+// ========================================================================== //
 expression ::= expression PLUS term {: System.out.println("+"); :};
 expression ::= expression SUB term {: System.out.println("-"); :};
-expression ::= term {: System.out.println("Expression = Term"); :};
+expression ::= term;
 term ::= term MULT factor {: System.out.println("*"); :};
 term ::= term DIV factor {: System.out.println("/"); :};
-term ::= factor {: System.out.println("Term = factor"); :};
+term ::= factor;
 factor ::= IDENTIFIER:id  {: System.out.println("Id: " + id); :};
-factor ::= INTEGER_CONSTANT:constant {: System.out.println("Constant: " + constant ); :};
-factor ::= OPEN_BRACKET expression CLOSE_BRACKET {: System.out.println("Factor = (Expression)"); :};
+factor ::= INTEGER_CONSTANT:constant {: System.out.println("Entero: " + constant ); :};
+factor ::= CONST_FLO:f {: System.out.println("Flotante: " + f ); :};
+factor ::= CONST_STR:s {: System.out.println("Cadena: " + s ); :};
+factor ::= OPEN_BRACKET expression CLOSE_BRACKET {: System.out.println("(Expression)"); :};
+
+// ========================================================================== //
+// ================ E: Tipos de datos
+// ========================================================================== //
+
+tipo_dato ::= INT:i {: System.out.println("int" ); :} 
+			| FLOAT:f {: System.out.println("float"); :} 
+			| STRING:s {: System.out.println("string"); :} ;
+
+// ========================================================================== //
+// ================ H: Condiciones
+// ========================================================================== //
+
+condicion ::= OPEN_BRACKET conjunto_condicion CLOSE_BRACKET
+			{: System.out.println("Condicion: completado"); :};
+
+conjunto_condicion ::= condicion_simple
+					| condicion_multiple
+					| condicion_negada;
+
+condicion_simple ::= expression operador_logico expression;
+
+
+condicion_multiple ::= condicion_simple:cs CP_Y condicion_simple 
+					{: System.out.println("Condicion Multiple con AND"); :}
+					|  condicion_simple:cs CP_O condicion_simple 
+					{: System.out.println("Condicion Multiple con OR"); :};
+
+condicion_negada ::= CP_NO condicion_simple
+				{: System.out.println("Condicion Simple Negada"); :};
+
+operador_logico ::= CP_MEN | CP_MENI | CP_MAY | CP_MAYI | CP_IGUA | CP_DIST;
+
+
+// ========================================================================== //
+// ================ G: Entrada y salida
+// ========================================================================== //
+sentence ::= READ OPEN_BRACKET IDENTIFIER:id CLOSE_BRACKET
+			{: System.out.println("READ: " + id + " completado");:};
+sentence ::= WRITE OPEN_BRACKET escribe CLOSE_BRACKET
+			{: System.out.println("WRITE: completado");:};
+
+escribe ::= CONST_STR:s {: System.out.println("Cadena: " + s);:}
+			| IDENTIFIER:id {: System.out.println("Id: " + id);:};
+			
+// ========================================================================== //
+// ================ B: If / if - else
+// ========================================================================== //
+sentence ::= IF condicion CA_LA lista_sentencia CA_LC 
+			{: System.out.println("IF: completado");:}
+			| IF condicion CA_LA lista_sentencia CA_LC ELSE CA_LA lista_sentencia CA_LC
+			{: System.out.println("IF / ELSE: completado");:};
+// ========================================================================== //
+// ================ A: While
+// ========================================================================== //
+
+sentence ::= WHILE condicion CA_LA lista_sentencia CA_LC 
+{: System.out.println("WHILE: completado");:};
+
+// ========================================================================== //
+// ================ Z: triangleAreaMaximum
+// ========================================================================== //
+/*
+triangleAreaMaximum
+
+Se desea implementar una función llamada triangleAreaMaximum que, dadas las 
+coordenadas de dos triángulos en el plano cartesiano, determine cuál de los 
+dos tiene mayor área y devuelva dicho valor numérico.
+
+La función recibirá dos triángulos, cada uno definido por las coordenadas 
+de sus vértices en el plano cartesiano. Dichas coordenadas pueden ser 
+Constantes o Variables, enteras o flotantes.
+*/
+sentence ::= TAM OPEN_BRACKET lista_cartesiana CLOSE_BRACKET 
+			{: 
+				System.out.println("triangleAreaMaximum: Completado");
+			:};
+			
+lista_cartesiana ::= triangulo CA_PY triangulo;
+
+triangulo ::= CA_CA punto CA_PY punto CA_PY punto CA_CC;
+
+punto ::= eje:x CA_CO eje:y
+			{: System.out.println(x+","+y); :};
+			
+eje ::= CONST_FLO:cf 			{: RESULT = cf; :}
+			| INTEGER_CONSTANT:ci 	{: RESULT = ci; :}
+			| IDENTIFIER:id			{: RESULT = id; :};
+			
+// ========================================================================== //
+// ================ X: convDate
+// ========================================================================== //
+
+/*		
+convDate
+Se desea implementar una función llamada convDate que convierta una fecha representada 
+por tres números enteros (día, mes y año) en un único valor numérico con el formato YYYYMMDD.
+CONV(22-03-2021) = 20210322
+*/
+sentence ::= CONV OPEN_BRACKET fecha CLOSE_BRACKET {: System.out.println("ConvDate: Completado"); :};
+fecha ::= dia SUB mes SUB anio;
+dia ::= INTEGER_CONSTANT;
+mes ::= INTEGER_CONSTANT;
+anio ::= INTEGER_CONSTANT;
