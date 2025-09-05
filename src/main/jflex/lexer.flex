@@ -66,16 +66,6 @@ import static lyc.compiler.constants.Constants.*;
 					+ ") excede el tamaño maximo de 50 caracteres.");
 	}
   }
-  private void agregarAlaTabla(){
-  	// 1ra opcion
-  	//tabla creada
-  	//crear la tabla aca
-  	//rellenarla aca
-  	//envia
-  	//2da opcion
-  	//relleno
-  	
-  }
   
 %}
 %state COMENTARIO
@@ -122,7 +112,6 @@ CP_O					= "OR" | "or"
 CP_NO					= "NOT" | "not"
 CP_BITT					= "TRUE" | "true"
 CP_BITF					= "FALSE" | "false"
-
 /* CONSTANTES NUMERICAS */
 CONST_FLO             	= ({NUMERO})+"."({NUMERO})* | "."({NUMERO})+
 CONST_INT               = {NATURAL}{NUMERO}*|[0]
@@ -142,7 +131,7 @@ WRITE					= "WRITE" | "write"
 READ					= "READ" | "read"
 WHILE					= "WHILE" | "while"
 TAM						= "TRIANGLEAREAMAXIMUM" | "triangleAreaMaximum"
-CON						= "CONVDATE" | "convDate"
+CONV					= "CONVDATE" | "convDate"
 
 COMEN_INI				= "#+"
 COMEN_FIN				= "+#"
@@ -191,7 +180,7 @@ COMEN_FIN				= "+#"
   {READ}					                 { return symbol(ParserSym.READ); }
   {WHILE}					                 { return symbol(ParserSym.WHILE); }
   {TAM}						                 { return symbol(ParserSym.TAM); }
-  {CON}						                 { return symbol(ParserSym.CON); }
+  {CONV}						             { return symbol(ParserSym.CONV); }
   /* PALABRAS RESERVADAS */
   {INT}										 { return symbol(ParserSym.INT); }
   {FLOAT}								     { return symbol(ParserSym.FLOAT); }

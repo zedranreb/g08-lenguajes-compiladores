@@ -4,6 +4,17 @@ import java_cup.runtime.*;
 
 class Parser;
 
+parser code {: 
+    @Override
+    public void syntax_error(Symbol s) {
+        System.err.println("=========== ERROR ===========");
+        System.err.println("Syntax error at line " + s.left + ", column " + s.right);
+        System.err.println("Unexpected token: " + s.value);
+        System.err.println("Expected tokens: " + expected_token_ids());
+    }
+
+:}
+
 // Terminals
 terminal ASSIG;
 terminal PLUS;
@@ -57,8 +68,7 @@ terminal WRITE;
 terminal READ;					
 terminal WHILE;					
 terminal TAM;						
-terminal CON;						
-
+terminal CONV;
 
 // Non Terminals
 non terminal programa;
@@ -85,6 +95,10 @@ non terminal lista_cartesiana;
 non terminal triangulo;
 non terminal punto;
 non terminal eje;
+non terminal fecha;
+non terminal dia;
+non terminal mes;
+non terminal anio;
 
 /*
 	TEMAS COMUNES:
@@ -218,3 +232,14 @@ punto ::= eje:x CA_CO eje:y
 eje ::= CONST_FLO:cf 			{: RESULT = cf; :}
 			| INTEGER_CONSTANT:ci 	{: RESULT = ci; :}
 			| IDENTIFIER:id			{: RESULT = id; :};
+/*		
+convDate
+Se desea implementar una función llamada convDate que convierta una fecha representada 
+por tres números enteros (día, mes y año) en un único valor numérico con el formato YYYYMMDD.
+CONV(22-03-2021) = 20210322
+*/
+sentence ::= CONV {: System.out.println("conv: "); :}OPEN_BRACKET fecha CLOSE_BRACKET;
+fecha ::= dia SUB mes SUB anio;
+dia ::= INTEGER_CONSTANT;
+mes ::= INTEGER_CONSTANT;
+anio ::= INTEGER_CONSTANT;
