@@ -198,6 +198,7 @@ COMEN_FIN				= "+#"
 
 <COMENTARIO> {  
   {COMEN_FIN}      {yybegin(YYINITIAL);}
+  {COMEN_INI}		{ throw new InvalidCommentException("LEX-ERR: No pueden existir comentarios anidados."); }
   .                 {}
   {EOL}             {}
 }

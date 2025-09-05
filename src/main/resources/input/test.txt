@@ -28,10 +28,10 @@ while( not 16 == a ) {
 
 #+
 
-write{}
+write{} 
 messi
 +#
 write(b)
 read(b)
 triangleAreaMaximum([1,b;3.2,5;a,c];[1,2;3.5,b;2.8,5])
-convDate(22-03-2021)
+
