@@ -1,13 +1,13 @@
 package lyc.compiler.tabla_simbolos;
 
-public class SymbolTable {
+public class Simbolo {
 
     private String nombre;
     private String tipoDato;
     private String valor;
     private Integer longitud;
 
-    public SymbolTable(String nombre, String tipoDato, String valor, Integer longitud) {
+    public Simbolo(String nombre, String tipoDato, String valor, Integer longitud) {
         this.nombre = nombre;
         this.tipoDato = tipoDato;
         this.valor = valor;
@@ -24,13 +24,13 @@ public class SymbolTable {
 
     public String getTipoDato() {
 
-        if(tipoDato=="CTE_INTEGER")
+       /*  if(tipoDato=="CTE_INTEGER")
             return "Int";
         else if(tipoDato=="CTE_FLOAT")
             return "Float";
         else if(tipoDato=="CTE_STRING")
             return "String";
-        else
+        else*/
             return tipoDato;
     }
 
