@@ -17,6 +17,7 @@ public class SymbolTableGenerator implements FileGenerator{
 
     @Override
     public void generate(FileWriter fileWriter) throws IOException {
+        fileWriter.write("NOMBRE | TIPODATO | VALOR | LONGITUD \n");
         for (Simbolo symbol : symbolTable) {
             fileWriter.write(symbol.getNombre() + " | " + symbol.getTipoDato() + " | " + symbol.getValor() + " | " + symbol.getLongitud() + "\n");
         }

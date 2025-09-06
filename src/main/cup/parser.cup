@@ -1,18 +1,29 @@
 package lyc.compiler;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import java_cup.runtime.*;
+import lyc.compiler.tabla_simbolos.*;
+import lyc.compiler.model.*;
 
 class Parser;
 
-parser code {: 
-    @Override
-    public void syntax_error(Symbol s) {
-        System.err.println("=========== ERROR ===========");
-        System.err.println("Syntax error at line " + s.left + ", column " + s.right);
-        System.err.println("Unexpected token: " + s.value);
-        System.err.println("Expected tokens: " + expected_token_ids());
-    }
+action code
+{:
+    public Manejador_Tabla_Simbolos manejadorTablaSimbolos = new Manejador_Tabla_Simbolos();
+    public ArrayList<Simbolo> listaSimbolos = new ArrayList<>();
+    public int cantidadElementos = 0;
+    public int index = 0;
+:}
 
+parser code
+{:
+    public ArrayList<Simbolo> getTablaSimbolos() { 
+        return action_obj.manejadorTablaSimbolos.getTablaSimbolos();
+    }
 :}
 
 // Terminals
