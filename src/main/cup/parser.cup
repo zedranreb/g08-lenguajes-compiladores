@@ -147,9 +147,15 @@ declaracion ::= lista_ids CA_DP tipo_dato
 {: System.out.println("Declaracion: completado"); :};
 
 lista_ids ::= lista_ids CA_CO IDENTIFIER:id
-{: System.out.println(id); :} | 
+{: System.out.println(id);
+Simbolo symbol = new Simbolo(id.toString(), "", "", null);
+this.listaSimbolos.add(symbol);
+ :} | 
 				IDENTIFIER:id
-				{: System.out.println(id); :};
+				{: System.out.println(id); 
+				Simbolo symbol = new Simbolo(id.toString(), "", "", null);
+				this.listaSimbolos.add(symbol);
+				:};
 			
 lista_sentencia ::= lista_sentencia sentence | 
 				sentence;
@@ -181,9 +187,15 @@ factor ::= OPEN_BRACKET expression CLOSE_BRACKET {: System.out.println("(Express
 // ================ E: Tipos de datos
 // ========================================================================== //
 
-tipo_dato ::= INT:i {: System.out.println("int" ); :} 
-			| FLOAT:f {: System.out.println("float"); :} 
-			| STRING:s {: System.out.println("string"); :} ;
+tipo_dato ::= INT:i {: System.out.println("int" );
+			action_obj.manejadorTablaSimbolos.addVariablesFromArrayList(this.listaSimbolos, "Int");
+			this.listaSimbolos.clear();  :} 
+			| FLOAT:f {: System.out.println("float"); 
+			action_obj.manejadorTablaSimbolos.addVariablesFromArrayList(this.listaSimbolos, "Float");
+			this.listaSimbolos.clear(); :} 
+			| STRING:s {: System.out.println("string"); 
+			action_obj.manejadorTablaSimbolos.addVariablesFromArrayList(this.listaSimbolos, "String");
+			this.listaSimbolos.clear(); :} ;
 
 // ========================================================================== //
 // ================ H: Condiciones
