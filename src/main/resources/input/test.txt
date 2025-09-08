@@ -1,61 +1,63 @@
-#+ Bloque de Inicializacion +#
 init {
-	#+ F: Declaración de variables +#
-	#+ E: Tipos de datos +#
-    c : int
-    d, e : float
-    casaDePepe : string
+  a, b , c: Int
+  f1, f2 : Float
+  s1 : String
+  a : int
 }
 
-#+ C: Asignaciones +#
-#+ D: Operaciones Aritméticas +#
-c=d*(e-21)/4 + 5
+a = 5
+b = a + 7
 
-r := "aguante argentina"
+f1 = 3.0
+f2 = f1 + 2.5
 
-argentina:=1.2
-
-#+ A: While +#
-while( a > b ) {
-    primerWhile := 2
-}
-while( a != b AND b >= 17.1 ) {
-    segundoWhile := 3
-}
-
-while( x <= 32 OR b == 14 ) {
-    tercerWhile := 4
-}
-while( not 16 == a ) {
-    cuartoWhile := 5
-    while( not a == a ) {
-        cuartoWhileAnidado := 6
-        write("Lenguajes y compiladores")
-    }
-}
-
-#+ Comentarios multilinea
-
-write{} 
-messi
+#+
+s1 = "hola"
 +#
 
-#+ G: Entrada y salida +#
-write(b)
-read(b)
-#+ Z: triangleAreaMaximum +#
-triangleAreaMaximum([1,b;3.2,5;a,c];[1,2;3.5,b;2.8,5])
+/*
+s1="pepito"
+*/
+
+READ(a)
+WRITE(s1)
+WRITE("ok")
+
+
+f1=triangleAreaMaximum([1,b;3.2,5;a,c];[1,2;3.5,b;2.8,5])
 #+ X: convDate +#
-convDate(12-12-2025)
-#+ B: If / if - else +#
-if ( 4 + 3 < 5 ) {
-	write("If sin anidar")
+a=convDate(12-12-2025)
+
+IF ( a > 2020 ) {
+  WRITE(s1)
+} ELSE {
+  WRITE("ok")
 }
 
-if (4.1 < b) {
-	if( a == b) {
-		write("If anidado condicion verdadera")
-	} else {
-		write("If anidado condicion falsa")
-	}
+IF ( b >= a ) {
+  IF ( c == b ) {
+    a = a + 1
+  } ELSE {
+    c = c + 2
+  }
+} ELSE {
+  b = b + 3
 }
+
+WHILE ( a > 0 ) {
+  IF ( b < a ) {
+    b = b + 1
+  } ELSE {
+    a = a - 1
+  }
+}
+
+WHILE ( f2 > 0.0 ) {
+  WHILE ( f1 < f2 ) {
+    f1 = f1 + 1.0
+  }
+  f2 = f2 - 1.0
+}
+
+b = (a + 5) - (convDate(2-1-2000) - 3)
+f1 = (triangleAreaMaximum( [ 0,0 ; 5,0 ; 0,5 ] ; [ 0,0 ; 4,0 ; 0,6 ] ) * 1.0) / (f1 + 1.0)

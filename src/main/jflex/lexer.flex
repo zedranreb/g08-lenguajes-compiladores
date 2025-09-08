@@ -133,8 +133,8 @@ WHILE					= "WHILE" | "while"
 TAM						= "TRIANGLEAREAMAXIMUM" | "triangleAreaMaximum"
 CONV					= "CONVDATE" | "convDate"
 
-COMEN_INI				= "#+"
-COMEN_FIN				= "+#"
+COMEN_INI				= "#+" | "/*"
+COMEN_FIN				= "+#" | "*/"
 %%
 /* -> FIN de las declaraciones <- */
 

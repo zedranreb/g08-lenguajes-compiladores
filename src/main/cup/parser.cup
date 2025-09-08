@@ -147,14 +147,28 @@ declaracion ::= lista_ids CA_DP tipo_dato
 {: System.out.println("Declaracion: completado"); :};
 
 lista_ids ::= lista_ids CA_CO IDENTIFIER:id
-{: System.out.println(id);
-Simbolo symbol = new Simbolo(id.toString(), "", "", null);
-this.listaSimbolos.add(symbol);
+{: 
+// Verificar si la variable ya está en la tabla de símbolos
+    if (action_obj.manejadorTablaSimbolos.containsSymbol(id.toString())) {
+        throw new RuntimeException("Error: La variable '" + id.toString() + "' ya está declarada.");
+    }
+
+    // Crear y agregar la nueva variable
+    Simbolo symbol = new Simbolo(id.toString(), "", "", null);
+    this.listaSimbolos.add(symbol);
+    System.out.println("Se inicializó la variable: " + id.toString());
  :} | 
 				IDENTIFIER:id
-				{: System.out.println(id); 
+				{: 
+				// Verificar si la variable ya está en la tabla de símbolos
+				if (action_obj.manejadorTablaSimbolos.containsSymbol(id.toString())) {
+					throw new RuntimeException("Error: La variable '" + id.toString() + "' ya está declarada.");
+				}
+
+				// Crear y agregar la nueva variable
 				Simbolo symbol = new Simbolo(id.toString(), "", "", null);
 				this.listaSimbolos.add(symbol);
+				System.out.println("Se inicializó la variable: " + id.toString());
 				:};
 			
 lista_sentencia ::= lista_sentencia sentence | 
@@ -165,23 +179,238 @@ lista_sentencia ::= lista_sentencia sentence |
 // ========================================================================== //
 
 sentence ::= assignment;
-assignment ::= IDENTIFIER:id ASSIG expression 
-{: System.out.println("Asignacion: " + id + " completado"); :};
+assignment ::= IDENTIFIER:id ASSIG expression:e
+{:
+    // Validar existencia de la variable LHS
+    Simbolo var = action_obj.manejadorTablaSimbolos.getSymbol(id.toString());
+    if (var == null) {
+        throw new RuntimeException("La variable '" + id + "' no fue declarada.");
+    }
+    // Validar que la expresión haya propagado un Simbolo tipado
+    if (e == null) {
+        throw new RuntimeException("Expresión nula en asignación a '" + id + "'.");
+    }
+    String tVar = var.getTipoDato();
+    String tExp = ((Simbolo)e).getTipoDato();
+    if (!tVar.equals(tExp)) {
+        throw new RuntimeException("Type mismatch: no se puede asignar " + tExp + " a variable " + id + " de tipo " + tVar);
+    }
+
+    System.out.println("Asignacion de : " + id);
+:};
 
 // ========================================================================== //
 // ================ D: Operaciones Aritméticas
 // ========================================================================== //
-expression ::= expression PLUS term {: System.out.println("+"); :};
-expression ::= expression SUB term {: System.out.println("-"); :};
-expression ::= term;
-term ::= term MULT factor {: System.out.println("*"); :};
-term ::= term DIV factor {: System.out.println("/"); :};
-term ::= factor;
-factor ::= IDENTIFIER:id  {: System.out.println("Id: " + id); :};
-factor ::= INTEGER_CONSTANT:constant {: System.out.println("Entero: " + constant ); :};
-factor ::= CONST_FLO:f {: System.out.println("Flotante: " + f ); :};
-factor ::= CONST_STR:s {: System.out.println("Cadena: " + s ); :};
-factor ::= OPEN_BRACKET expression CLOSE_BRACKET {: System.out.println("(Expression)"); :};
+expression ::= expression:e1 PLUS term:e2
+{:
+    // Chequeo de tipos homogéneos (no hay promoción implícita)
+    if (!((Simbolo)e1).getTipoDato().equals(((Simbolo)e2).getTipoDato())) {
+        throw new RuntimeException("Type mismatch en suma: " + ((Simbolo)e1).getTipoDato() + " + " + ((Simbolo)e2).getTipoDato());
+    }
+    // Propagamos tipo
+    RESULT = (Simbolo)e2;
+    System.out.println("+");
+:};
+expression ::= expression:e1 SUB term:e2
+{:
+    if (!((Simbolo)e1).getTipoDato().equals(((Simbolo)e2).getTipoDato())) {
+        throw new RuntimeException("Type mismatch en resta: " + ((Simbolo)e1).getTipoDato() + " - " + ((Simbolo)e2).getTipoDato());
+    }
+    RESULT = (Simbolo)e2;
+    System.out.println("-");
+:};
+expression ::= term:t
+{:
+    RESULT = t;
+:};
+term ::= term:t MULT factor:f
+{:
+    if (!((Simbolo)t).getTipoDato().equals(((Simbolo)f).getTipoDato())) {
+        throw new RuntimeException("Type mismatch en multiplicación: " + ((Simbolo)t).getTipoDato() + " * " + ((Simbolo)f).getTipoDato());
+    }
+    RESULT = (Simbolo)f;
+    System.out.println("*");
+:};
+term ::= term:t DIV factor:f
+{:
+    if (!((Simbolo)t).getTipoDato().equals(((Simbolo)f).getTipoDato())) {
+        throw new RuntimeException("Type mismatch en división: " + ((Simbolo)t).getTipoDato() + " / " + ((Simbolo)f).getTipoDato());
+    }
+    RESULT = (Simbolo)f;
+    System.out.println("/");
+:};
+term ::= factor:f
+{:
+    RESULT = f;
+:};
+factor ::= IDENTIFIER:id
+{:
+    // Lookup de variable
+    Simbolo s = action_obj.manejadorTablaSimbolos.getSymbol(id.toString());
+    if (s == null) {
+        throw new RuntimeException("La variable '" + id + "' no fue declarada.");
+    }
+    RESULT = s;
+    System.out.println("Id: " + id);
+:};
+factor ::= INTEGER_CONSTANT:constant
+{:
+    // Registrar constante entera con prefijo "_"
+    String lex = constant.toString();
+    String nombre = "_" + lex;
+    if (!action_obj.manejadorTablaSimbolos.containsSymbol(nombre)) {
+        action_obj.manejadorTablaSimbolos.addSymbol(new Simbolo(nombre, "Int", lex, lex.length()));
+    }
+    RESULT = new Simbolo(nombre, "Int", lex, lex.length());
+    System.out.println("Entero: " + constant );
+:};
+factor ::= CONST_FLO:f
+{:
+    String lex = f.toString();
+    String nombre = "_" + lex;
+    if (!action_obj.manejadorTablaSimbolos.containsSymbol(nombre)) {
+        action_obj.manejadorTablaSimbolos.addSymbol(new Simbolo(nombre, "Float", lex, lex.length()));
+    }
+    RESULT = new Simbolo(nombre, "Float", lex, lex.length());
+    System.out.println("Flotante: " + f );
+:};
+factor ::= CONST_STR:s
+{:
+    String lex = s.toString();
+    String nombre = "_" + lex;
+    if (!action_obj.manejadorTablaSimbolos.containsSymbol(nombre)) {
+        action_obj.manejadorTablaSimbolos.addSymbol(new Simbolo(nombre, "String", lex, lex.length()));
+    }
+    RESULT = new Simbolo(nombre, "String", lex, lex.length());
+    System.out.println("Cadena: " + s );
+:};
+factor ::= OPEN_BRACKET expression:e CLOSE_BRACKET
+{:
+    RESULT = e;
+    System.out.println("(Expression)");
+:};
+
+
+/* === Agregados para usar las funciones en expresiones ===
+   No se crean entradas en la TS; solo se retorna un Simbolo con el tipo correcto.
+   Esto permite, por ejemplo: a = CONV(12-12-2025) y x = TAM([...]) en contextos aritméticos.
+*/
+
+// triangleAreaMaximum -> resultado numérico (usamos Float)
+factor ::= TAM OPEN_BRACKET lista_cartesiana CLOSE_BRACKET
+{:
+    // 'lista_cartesiana' ya valida que las coordenadas sean Int/Float y que los IDs existan.
+    RESULT = new Simbolo("triangleAreaMaximumResult", "Float", "", 0);
+    System.out.println("triangleAreaMaximum usado como factor");
+:};
+
+// convDate -> entero YYYYMMDD
+factor ::= CONV OPEN_BRACKET fecha CLOSE_BRACKET
+{:
+    // 'fecha' se define como dia SUB mes SUB anio; tokens enteros.
+    RESULT = new Simbolo("convDateResult", "Int", "", 0);
+    System.out.println("convDate usado como factor");
+:};
+
+// ========================================================================== //
+// ================ H: Condiciones
+// ========================================================================== //
+
+condicion ::= OPEN_BRACKET conjunto_condicion CLOSE_BRACKET
+{:
+    System.out.println("Condicion: completado");
+:};
+
+conjunto_condicion ::= condicion_simple
+                    | condicion_multiple
+                    | condicion_negada;
+
+condicion_simple ::= expression:e1 operador_logico expression:e2
+{:
+    // Validar que ambos lados estén tipados y sean comparables (mismo tipo)
+    if (e1 == null || e2 == null) {
+        throw new RuntimeException("Expresión nula en condición simple.");
+    }
+    String t1 = ((Simbolo)e1).getTipoDato();
+    String t2 = ((Simbolo)e2).getTipoDato();
+    if (!t1.equals(t2)) {
+        throw new RuntimeException("Type mismatch en comparación: " + t1 + " con " + t2);
+    }
+:};
+
+condicion_multiple ::= condicion_simple:cs CP_Y condicion_simple 
+{:
+    System.out.println("Condicion Multiple con AND");
+:}
+                    |  condicion_simple:cs CP_O condicion_simple 
+{:
+    System.out.println("Condicion Multiple con OR");
+:};
+
+condicion_negada ::= CP_NO condicion_simple
+{:
+    System.out.println("Condicion Simple Negada");
+:};
+
+operador_logico ::= CP_MEN | CP_MENI | CP_MAY | CP_MAYI | CP_IGUA | CP_DIST;
+
+
+// ========================================================================== //
+// ================ G: Entrada y salida
+// ========================================================================== //
+sentence ::= READ OPEN_BRACKET IDENTIFIER:id CLOSE_BRACKET
+{:
+    // Validar existencia del identificador
+    if (!action_obj.manejadorTablaSimbolos.containsSymbol(id.toString())) {
+        throw new RuntimeException("READ sobre variable no declarada: " + id);
+    }
+    System.out.println("READ: " + id + " completado");
+:};
+sentence ::= WRITE OPEN_BRACKET escribe CLOSE_BRACKET
+{:
+    System.out.println("WRITE: completado");
+:};
+
+escribe ::= CONST_STR:s
+{:
+    // Registrar la constante string con prefijo "_"
+    String lex = s.toString();
+    String nombre = "_" + lex;
+    if (!action_obj.manejadorTablaSimbolos.containsSymbol(nombre)) {
+        action_obj.manejadorTablaSimbolos.addSymbol(new Simbolo(nombre, "String", lex, lex.length()));
+    }
+    System.out.println("Cadena: " + s);
+:}
+          | IDENTIFIER:id
+{:
+    if (!action_obj.manejadorTablaSimbolos.containsSymbol(id.toString())) {
+        throw new RuntimeException("WRITE sobre variable no declarada: " + id);
+    }
+    System.out.println("Id: " + id);
+:};
+			
+// ========================================================================== //
+// ================ B: If / if - else
+// ========================================================================== //
+sentence ::= IF condicion CA_LA lista_sentencia CA_LC 
+{:
+    System.out.println("IF: completado");
+:}
+            | IF condicion CA_LA lista_sentencia CA_LC ELSE CA_LA lista_sentencia CA_LC
+{:
+    System.out.println("IF / ELSE: completado");
+:};
+
+// ========================================================================== //
+// ================ A: While
+// ========================================================================== //
+
+sentence ::= WHILE condicion CA_LA lista_sentencia CA_LC 
+{:
+    System.out.println("WHILE: completado");
+:};
+
 
 // ========================================================================== //
 // ================ E: Tipos de datos
@@ -197,55 +426,6 @@ tipo_dato ::= INT:i {: System.out.println("int" );
 			action_obj.manejadorTablaSimbolos.addVariablesFromArrayList(this.listaSimbolos, "String");
 			this.listaSimbolos.clear(); :} ;
 
-// ========================================================================== //
-// ================ H: Condiciones
-// ========================================================================== //
-
-condicion ::= OPEN_BRACKET conjunto_condicion CLOSE_BRACKET
-			{: System.out.println("Condicion: completado"); :};
-
-conjunto_condicion ::= condicion_simple
-					| condicion_multiple
-					| condicion_negada;
-
-condicion_simple ::= expression operador_logico expression;
-
-
-condicion_multiple ::= condicion_simple:cs CP_Y condicion_simple 
-					{: System.out.println("Condicion Multiple con AND"); :}
-					|  condicion_simple:cs CP_O condicion_simple 
-					{: System.out.println("Condicion Multiple con OR"); :};
-
-condicion_negada ::= CP_NO condicion_simple
-				{: System.out.println("Condicion Simple Negada"); :};
-
-operador_logico ::= CP_MEN | CP_MENI | CP_MAY | CP_MAYI | CP_IGUA | CP_DIST;
-
-
-// ========================================================================== //
-// ================ G: Entrada y salida
-// ========================================================================== //
-sentence ::= READ OPEN_BRACKET IDENTIFIER:id CLOSE_BRACKET
-			{: System.out.println("READ: " + id + " completado");:};
-sentence ::= WRITE OPEN_BRACKET escribe CLOSE_BRACKET
-			{: System.out.println("WRITE: completado");:};
-
-escribe ::= CONST_STR:s {: System.out.println("Cadena: " + s);:}
-			| IDENTIFIER:id {: System.out.println("Id: " + id);:};
-			
-// ========================================================================== //
-// ================ B: If / if - else
-// ========================================================================== //
-sentence ::= IF condicion CA_LA lista_sentencia CA_LC 
-			{: System.out.println("IF: completado");:}
-			| IF condicion CA_LA lista_sentencia CA_LC ELSE CA_LA lista_sentencia CA_LC
-			{: System.out.println("IF / ELSE: completado");:};
-// ========================================================================== //
-// ================ A: While
-// ========================================================================== //
-
-sentence ::= WHILE condicion CA_LA lista_sentencia CA_LC 
-{: System.out.println("WHILE: completado");:};
 
 // ========================================================================== //
 // ================ Z: triangleAreaMaximum
@@ -262,26 +442,70 @@ de sus vértices en el plano cartesiano. Dichas coordenadas pueden ser
 Constantes o Variables, enteras o flotantes.
 */
 sentence ::= TAM OPEN_BRACKET lista_cartesiana CLOSE_BRACKET 
-			{: 
-				System.out.println("triangleAreaMaximum: Completado");
-			:};
-			
+            {:
+                System.out.println("triangleAreaMaximum: Completado");
+            :};
+            
 lista_cartesiana ::= triangulo CA_PY triangulo;
 
 triangulo ::= CA_CA punto CA_PY punto CA_PY punto CA_CC;
 
 punto ::= eje:x CA_CO eje:y
-			{: System.out.println(x+","+y); :};
-			
-eje ::= CONST_FLO:cf 			{: RESULT = cf; :}
-			| INTEGER_CONSTANT:ci 	{: RESULT = ci; :}
-			| IDENTIFIER:id			{: RESULT = id; :};
-			
+            {:
+                // x e y vienen como Simbolo (ver 'eje')
+                String tx = ((Simbolo)x).getTipoDato();
+                String ty = ((Simbolo)y).getTipoDato();
+
+                // Solo se permiten coordenadas numéricas (Int o Float)
+                boolean xNum = tx.equals("Int") || tx.equals("Float");
+                boolean yNum = ty.equals("Int") || ty.equals("Float");
+                if (!xNum || !yNum) {
+                    throw new RuntimeException("Coordenadas no numéricas en punto: (" + tx + ", " + ty + ")");
+                }
+
+                System.out.println(((Simbolo)x).getNombre()+","+((Simbolo)y).getNombre());
+            :};
+            
+eje ::= CONST_FLO:cf
+            {:
+                // Registrar constante Float con prefijo "_"
+                String lex = cf.toString();
+                String nombre = "_" + lex;
+                if (!action_obj.manejadorTablaSimbolos.containsSymbol(nombre)) {
+                    action_obj.manejadorTablaSimbolos.addSymbol(new Simbolo(nombre, "Float", lex, lex.length()));
+                }
+                // Propagar como Simbolo tipado
+                RESULT = new Simbolo(nombre, "Float", lex, lex.length());
+            :}
+        | INTEGER_CONSTANT:ci
+            {:
+                // Registrar constante Int con prefijo "_"
+                String lex = ci.toString();
+                String nombre = "_" + lex;
+                if (!action_obj.manejadorTablaSimbolos.containsSymbol(nombre)) {
+                    action_obj.manejadorTablaSimbolos.addSymbol(new Simbolo(nombre, "Int", lex, lex.length()));
+                }
+                RESULT = new Simbolo(nombre, "Int", lex, lex.length());
+            :}
+        | IDENTIFIER:id
+            {:
+                // Debe existir en TS y ser numérica
+                Simbolo s = action_obj.manejadorTablaSimbolos.getSymbol(id.toString());
+                if (s == null) {
+                    throw new RuntimeException("Identificador no declarado en coordenada: " + id);
+                }
+                String t = s.getTipoDato();
+                if (!(t.equals("Int") || t.equals("Float"))) {
+                    throw new RuntimeException("Identificador no numérico en coordenada: " + id + " de tipo " + t);
+                }
+                RESULT = s;
+            :};
+
 // ========================================================================== //
 // ================ X: convDate
 // ========================================================================== //
 
-/*		
+/*        
 convDate
 Se desea implementar una función llamada convDate que convierta una fecha representada 
 por tres números enteros (día, mes y año) en un único valor numérico con el formato YYYYMMDD.
