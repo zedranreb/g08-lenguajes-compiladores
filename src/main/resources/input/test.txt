@@ -2,7 +2,6 @@ init {
   a, b , c: Int
   f1, f2 : Float
   s1 : String
-  a : int
 }
 
 a = 5
