@@ -5,9 +5,9 @@ import java.io.IOException;
 import java.util.Objects;
 import java.util.ArrayList;
 
-import lyc.compiler.table.Simbolo;
+import lyc.compiler.table.Simbolo; 
 
-public class SymbolTableGenerator implements FileGenerator{
+public class SymbolTableGenerator implements FileGenerator {
 
     private final ArrayList<Simbolo> symbolTable;
 
@@ -17,9 +17,20 @@ public class SymbolTableGenerator implements FileGenerator{
 
     @Override
     public void generate(FileWriter fileWriter) throws IOException {
-        fileWriter.write("NOMBRE | TIPO DATO | VALOR | LONGITUD \n");
+
+        fileWriter.write(String.format("%-10s | %-15s | %-10s | %-8s%n",
+                "NOMBRE", "TIPO DATO", "VALOR", "LONGITUD"));
+
         for (Simbolo symbol : symbolTable) {
-        	fileWriter.write(String.valueOf(symbol));
+            fileWriter.write(
+                String.format("%-10s | %-15s | %-10s | %-10s%n",
+                    symbol.getNombre(),
+                    symbol.getTipoFormateado(), 
+                    symbol.getValor(),
+                    Objects.toString(symbol.getLongitud(), "")
+                )
+            );
         }
     }
+
 }

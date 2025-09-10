@@ -48,19 +48,21 @@ public class Simbolo {
         this.longitud = longitud;
     }
 
+    public String getTipoFormateado() {
+        if (nombre.charAt(0) == '_') {
+            return switch (tipoDato) {
+               case "Float" -> "CONST_FLOAT";
+               case "Int"   -> "CONST_INT";
+               case "String"-> "CONST_STR";
+               default      -> tipoDato;
+         };
+    }
+    return tipoDato;
+}
+
     @Override
     public String toString() {
-        String td = tipoDato;
-        if (nombre.charAt(0) == '_') { 
-            if ("Float".equals(tipoDato)) { 
-                td = "CONST_FLOAT";
-            } else if ("Int".equals(tipoDato)) {
-                td = "CONST_INT";
-            } else if ("String".equals(tipoDato)) {
-                td = "CONST_STR";
-            }
-        } 
-
-        return nombre + " | " + td + " | " + valor + " | " + Objects.toString(longitud, "") + "\n";
+        return nombre + " | " + getTipoFormateado() + " | " + valor + " | " + Objects.toString(longitud, "") + "\n";
     }
+
 }
