@@ -22,7 +22,7 @@ public final class Compiler {
         try (Reader reader = FileFactory.create(args[0])) {
             Parser parser = ParserFactory.create(reader);
             parser.parse();
-            FileOutputWriter.writeOutput("symbol-table.txt", new SymbolTableGenerator(parser.getTablaSimbolos()));
+            FileOutputWriter.writeOutput("symbol-table.txt", new SymbolTableGenerator(parser.getSymbolTable()));
             //FileOutputWriter.writeOutput("intermediate-code.txt", new SymbolTableGenerator());
            // FileOutputWriter.writeOutput("final.asm", new SymbolTableGenerator());
         } catch (IOException e) {

@@ -1,4 +1,6 @@
-package lyc.compiler.tabla_simbolos;
+package lyc.compiler.table;
+
+import java.util.Objects;
 
 public class Simbolo {
 
@@ -48,6 +50,6 @@ public class Simbolo {
 
     @Override
     public String toString() {
-        return nombre + " | " + tipoDato + " | " + valor + " | " + longitud;
+        return nombre + " | " + tipoDato + " | " + valor + " | " + Objects.toString(longitud, "") + "\n";
     }
 }

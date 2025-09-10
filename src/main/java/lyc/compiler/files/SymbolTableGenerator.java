@@ -2,10 +2,10 @@ package lyc.compiler.files;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Objects;
+import java.util.ArrayList;
 
-import lyc.compiler.tabla_simbolos.Simbolo;
+import lyc.compiler.table.Simbolo;
 
 public class SymbolTableGenerator implements FileGenerator{
 
@@ -17,9 +17,9 @@ public class SymbolTableGenerator implements FileGenerator{
 
     @Override
     public void generate(FileWriter fileWriter) throws IOException {
-        fileWriter.write("NOMBRE | TIPODATO | VALOR | LONGITUD \n");
+        fileWriter.write("NOMBRE | TIPO DATO | VALOR | LONGITUD \n");
         for (Simbolo symbol : symbolTable) {
-            fileWriter.write(symbol.getNombre() + " | " + symbol.getTipoDato() + " | " + symbol.getValor() + " | " + Objects.toString(symbol.getLongitud(), "") + "\n");
+        	fileWriter.write(String.valueOf(symbol));
         }
     }
 }

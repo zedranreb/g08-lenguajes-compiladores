@@ -3,26 +3,23 @@ package lyc.compiler;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
 import java_cup.runtime.*;
-import lyc.compiler.tabla_simbolos.*;
+import lyc.compiler.table.*;
 import lyc.compiler.model.*;
 
 class Parser;
 
 action code
 {:
-    public Manejador_Tabla_Simbolos manejadorTablaSimbolos = new Manejador_Tabla_Simbolos();
-    public ArrayList<Simbolo> listaSimbolos = new ArrayList<>();
-    public int cantidadElementos = 0;
-    public int index = 0;
+    public SymbolTable symbolTable = new SymbolTable();
+    public ArrayList<Simbolo> symbolList = new ArrayList<>();
 :}
 
 parser code
 {:
-    public ArrayList<Simbolo> getTablaSimbolos() { 
-        return action_obj.manejadorTablaSimbolos.getTablaSimbolos();
+    public ArrayList<Simbolo> getSymbolTable() { 
+        return action_obj.symbolTable.getSymbolTable();
     }
 :}
 
@@ -43,7 +40,10 @@ terminal CA_LA;
 terminal CA_LC;					
 terminal CA_CO;					
 terminal CA_DP;					
-terminal CA_PY;		
+terminal CA_PY;
+terminal CP_BITT;
+terminal CP_BITF;
+terminal CA_COM;		
 
 terminal CP_MEN;					
 terminal CP_MENI;					
@@ -136,25 +136,25 @@ declaracion ::= lista_ids CA_DP tipo_dato
 lista_ids ::= lista_ids CA_CO IDENTIFIER:id
 {: 
 // Verificar si la variable ya está en la tabla de símbolos
-    if (action_obj.manejadorTablaSimbolos.containsSymbol(id.toString())) {
+    if (action_obj.symbolTable.containsSymbol(id.toString())) {
         throw new RuntimeException("Error: La variable '" + id.toString() + "' ya está declarada.");
     }
 
     // Crear y agregar la nueva variable
     Simbolo symbol = new Simbolo(id.toString(), "", "", null);
-    this.listaSimbolos.add(symbol);
+    this.symbolList.add(symbol);
     System.out.println("Se inicializó la variable: " + id.toString());
  :} | 
 				IDENTIFIER:id
 				{: 
 				// Verificar si la variable ya está en la tabla de símbolos
-				if (action_obj.manejadorTablaSimbolos.containsSymbol(id.toString())) {
+				if (action_obj.symbolTable.containsSymbol(id.toString())) {
 					throw new RuntimeException("Error: La variable '" + id.toString() + "' ya está declarada.");
 				}
 
 				// Crear y agregar la nueva variable
 				Simbolo symbol = new Simbolo(id.toString(), "", "", null);
-				this.listaSimbolos.add(symbol);
+				this.symbolList.add(symbol);
 				System.out.println("Se inicializó la variable: " + id.toString());
 				:};
 			
@@ -169,7 +169,7 @@ sentence ::= assignment;
 assignment ::= IDENTIFIER:id ASSIG expression:e
 {:
     // Validar existencia de la variable LHS
-    Simbolo var = action_obj.manejadorTablaSimbolos.getSymbol(id.toString());
+    Simbolo var = action_obj.symbolTable.getSymbol(id.toString());
     if (var == null) {
         throw new RuntimeException("La variable '" + id + "' no fue declarada.");
     }
@@ -234,7 +234,7 @@ term ::= factor:f
 factor ::= IDENTIFIER:id
 {:
     // Lookup de variable
-    Simbolo s = action_obj.manejadorTablaSimbolos.getSymbol(id.toString());
+    Simbolo s = action_obj.symbolTable.getSymbol(id.toString());
     if (s == null) {
         throw new RuntimeException("La variable '" + id + "' no fue declarada.");
     }
@@ -246,8 +246,8 @@ factor ::= INTEGER_CONSTANT:constant
     // Registrar constante entera con prefijo "_"
     String lex = constant.toString();
     String nombre = "_" + lex;
-    if (!action_obj.manejadorTablaSimbolos.containsSymbol(nombre)) {
-        action_obj.manejadorTablaSimbolos.addSymbol(new Simbolo(nombre, "Int", lex, lex.length()));
+    if (!action_obj.symbolTable.containsSymbol(nombre)) {
+        action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "Int", lex, lex.length()));
     }
     RESULT = new Simbolo(nombre, "Int", lex, lex.length());
     System.out.println("Entero: " + constant );
@@ -256,8 +256,8 @@ factor ::= CONST_FLO:f
 {:
     String lex = f.toString();
     String nombre = "_" + lex;
-    if (!action_obj.manejadorTablaSimbolos.containsSymbol(nombre)) {
-        action_obj.manejadorTablaSimbolos.addSymbol(new Simbolo(nombre, "Float", lex, lex.length()));
+    if (!action_obj.symbolTable.containsSymbol(nombre)) {
+        action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "Float", lex, lex.length()));
     }
     RESULT = new Simbolo(nombre, "Float", lex, lex.length());
     System.out.println("Flotante: " + f );
@@ -266,8 +266,8 @@ factor ::= CONST_STR:s
 {:
     String lex = s.toString();
     String nombre = "_" + lex;
-    if (!action_obj.manejadorTablaSimbolos.containsSymbol(nombre)) {
-        action_obj.manejadorTablaSimbolos.addSymbol(new Simbolo(nombre, "String", lex, lex.length()));
+    if (!action_obj.symbolTable.containsSymbol(nombre)) {
+        action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "String", lex, lex.length()));
     }
     RESULT = new Simbolo(nombre, "String", lex, lex.length());
     System.out.println("Cadena: " + s );
@@ -349,7 +349,7 @@ operador_logico ::= CP_MEN | CP_MENI | CP_MAY | CP_MAYI | CP_IGUA | CP_DIST;
 sentence ::= READ OPEN_BRACKET IDENTIFIER:id CLOSE_BRACKET
 {:
     // Validar existencia del identificador
-    if (!action_obj.manejadorTablaSimbolos.containsSymbol(id.toString())) {
+    if (!action_obj.symbolTable.containsSymbol(id.toString())) {
         throw new RuntimeException("READ sobre variable no declarada: " + id);
     }
     System.out.println("READ: " + id + " completado");
@@ -364,14 +364,14 @@ escribe ::= CONST_STR:s
     // Registrar la constante string con prefijo "_"
     String lex = s.toString();
     String nombre = "_" + lex;
-    if (!action_obj.manejadorTablaSimbolos.containsSymbol(nombre)) {
-        action_obj.manejadorTablaSimbolos.addSymbol(new Simbolo(nombre, "String", lex, lex.length()));
+    if (!action_obj.symbolTable.containsSymbol(nombre)) {
+        action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "String", lex, lex.length()));
     }
     System.out.println("Cadena: " + s);
 :}
           | IDENTIFIER:id
 {:
-    if (!action_obj.manejadorTablaSimbolos.containsSymbol(id.toString())) {
+    if (!action_obj.symbolTable.containsSymbol(id.toString())) {
         throw new RuntimeException("WRITE sobre variable no declarada: " + id);
     }
     System.out.println("Id: " + id);
@@ -404,14 +404,14 @@ sentence ::= WHILE condicion CA_LA lista_sentencia CA_LC
 // ========================================================================== //
 
 tipo_dato ::= INT:i {: System.out.println("int" );
-			action_obj.manejadorTablaSimbolos.addVariablesFromArrayList(this.listaSimbolos, "Int");
-			this.listaSimbolos.clear();  :} 
+			action_obj.symbolTable.addNewSymbols(this.symbolList, "Int");
+			this.symbolList.clear();  :} 
 			| FLOAT:f {: System.out.println("float"); 
-			action_obj.manejadorTablaSimbolos.addVariablesFromArrayList(this.listaSimbolos, "Float");
-			this.listaSimbolos.clear(); :} 
+			action_obj.symbolTable.addNewSymbols(this.symbolList, "Float");
+			this.symbolList.clear(); :} 
 			| STRING:s {: System.out.println("string"); 
-			action_obj.manejadorTablaSimbolos.addVariablesFromArrayList(this.listaSimbolos, "String");
-			this.listaSimbolos.clear(); :} ;
+			action_obj.symbolTable.addNewSymbols(this.symbolList, "String");
+			this.symbolList.clear(); :} ;
 
 
 // ========================================================================== //
@@ -458,8 +458,8 @@ eje ::= CONST_FLO:cf
                 // Registrar constante Float con prefijo "_"
                 String lex = cf.toString();
                 String nombre = "_" + lex;
-                if (!action_obj.manejadorTablaSimbolos.containsSymbol(nombre)) {
-                    action_obj.manejadorTablaSimbolos.addSymbol(new Simbolo(nombre, "Float", lex, lex.length()));
+                if (!action_obj.symbolTable.containsSymbol(nombre)) {
+                    action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "Float", lex, lex.length()));
                 }
                 // Propagar como Simbolo tipado
                 RESULT = new Simbolo(nombre, "Float", lex, lex.length());
@@ -469,15 +469,15 @@ eje ::= CONST_FLO:cf
                 // Registrar constante Int con prefijo "_"
                 String lex = ci.toString();
                 String nombre = "_" + lex;
-                if (!action_obj.manejadorTablaSimbolos.containsSymbol(nombre)) {
-                    action_obj.manejadorTablaSimbolos.addSymbol(new Simbolo(nombre, "Int", lex, lex.length()));
+                if (!action_obj.symbolTable.containsSymbol(nombre)) {
+                    action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "Int", lex, lex.length()));
                 }
                 RESULT = new Simbolo(nombre, "Int", lex, lex.length());
             :}
         | IDENTIFIER:id
             {:
                 // Debe existir en TS y ser numérica
-                Simbolo s = action_obj.manejadorTablaSimbolos.getSymbol(id.toString());
+                Simbolo s = action_obj.symbolTable.getSymbol(id.toString());
                 if (s == null) {
                     throw new RuntimeException("Identificador no declarado en coordenada: " + id);
                 }
