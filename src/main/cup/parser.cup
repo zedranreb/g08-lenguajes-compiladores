@@ -33,7 +33,7 @@ terminal OPEN_BRACKET;
 terminal CLOSE_BRACKET;
 terminal INTEGER_CONSTANT;
 terminal IDENTIFIER;
-				
+terminal DATE_CONVERTED;
 terminal CA_CA;					
 terminal CA_CC;					
 terminal CA_LA;					
@@ -179,7 +179,7 @@ assignment ::= IDENTIFIER:id ASSIG expression:e
     }
     String tVar = var.getTipoDato();
     String tExp = ((Simbolo)e).getTipoDato();
-    if (!tVar.equals(tExp)) {
+    if (!tExp.equals("DATE_CONVERTED") && !tVar.equals("DATE_CONVERTED") && !tVar.equals(tExp)) {
         throw new RuntimeException("Type mismatch: no se puede asignar " + tExp + " a variable " + id + " de tipo " + tVar);
     }
 
@@ -411,6 +411,9 @@ tipo_dato ::= INT:i {: System.out.println("int" );
 			this.symbolList.clear(); :} 
 			| STRING:s {: System.out.println("string"); 
 			action_obj.symbolTable.addNewSymbols(this.symbolList, "String");
+			this.symbolList.clear(); :}
+			| DATE_CONVERTED:d {: System.out.println("DATE_CONVERTED"); 
+			action_obj.symbolTable.addNewSymbols(this.symbolList, "DATE_CONVERTED");
 			this.symbolList.clear(); :} ;
 
 

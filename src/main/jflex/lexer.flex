@@ -122,7 +122,7 @@ ID                      = {LETRA}({LETRA}|{NUMERO})*
 INT						= "Int" | "INT" | "int"
 FLOAT					= "Float"	| "FLOAT" | "float"
 STRING					= "String" | "STRING" | "string"
-
+DATE_CONVERTED			= "DateConverted"
 /* PALABRAS RESERVADAS - FLUJO DE PROGRAMA */
 INI						= "INIT" | "init"
 IF						= "IF"	| "if"
@@ -185,6 +185,7 @@ COMEN_FIN				= "+#" | "*/"
   {INT}										 { return symbol(ParserSym.INT); }
   {FLOAT}								     { return symbol(ParserSym.FLOAT); }
   {STRING}									 { return symbol(ParserSym.STRING); }
+  {DATE_CONVERTED}							 { return symbol(ParserSym.DATE_CONVERTED); }
   
   /* CONSTANTES NUMERICAS */
   {CONST_FLO}             					 { validarFloat(yytext()); return symbol(ParserSym.CONST_FLO, yytext()); }

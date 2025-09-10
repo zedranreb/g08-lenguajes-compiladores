@@ -2,6 +2,7 @@ init {
   a, b , c: Int
   f1, f2 : Float
   s1 : String
+  d : DateConverted
 }
 
 a = 5
@@ -9,6 +10,7 @@ b = a + 7
 
 f1 = 3.0
 f2 = f1 + 2.5
+d = 12-12-2025
 
 #+
 s1 = "hola"
