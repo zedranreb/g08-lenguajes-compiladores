@@ -36,23 +36,14 @@ terminal OPEN_BRACKET;
 terminal CLOSE_BRACKET;
 terminal INTEGER_CONSTANT;
 terminal IDENTIFIER;
-
-terminal CA_PA;					
-terminal CA_PC;					
+				
 terminal CA_CA;					
 terminal CA_CC;					
 terminal CA_LA;					
 terminal CA_LC;					
 terminal CA_CO;					
 terminal CA_DP;					
-terminal CA_PY;					
-terminal CA_COM;					
-
-terminal OP_ASI;					
-terminal OP_SUM; 					
-terminal OP_RES;					
-terminal OP_MUL;					
-terminal OP_DIV;					
+terminal CA_PY;		
 
 terminal CP_MEN;					
 terminal CP_MENI;					
@@ -63,10 +54,7 @@ terminal CP_DIST;
 terminal CP_Y;					
 terminal CP_O;					
 terminal CP_NO;					
-terminal CP_BITT;					
-terminal CP_BITF;					
-terminal CONST_STR;               
-terminal CONST_INT;               
+terminal CONST_STR;              
 terminal CONST_FLO;             	
                 
 terminal INT;						
@@ -99,7 +87,6 @@ non terminal conjunto_condicion;
 non terminal condicion_simple;
 non terminal condicion_multiple;
 non terminal condicion_negada;
-non terminal comparar;
 non terminal operador_logico;
 non terminal escribe;
 non terminal lista_cartesiana;
