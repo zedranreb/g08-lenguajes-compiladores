@@ -50,6 +50,17 @@ public class Simbolo {
 
     @Override
     public String toString() {
-        return nombre + " | " + tipoDato + " | " + valor + " | " + Objects.toString(longitud, "") + "\n";
+        String td = tipoDato;
+        if (nombre.charAt(0) == '_') { 
+            if ("Float".equals(tipoDato)) { 
+                td = "CONST_FLOAT";
+            } else if ("Int".equals(tipoDato)) {
+                td = "CONST_INT";
+            } else if ("String".equals(tipoDato)) {
+                td = "CONST_STR";
+            }
+        } 
+
+        return nombre + " | " + td + " | " + valor + " | " + Objects.toString(longitud, "") + "\n";
     }
 }
