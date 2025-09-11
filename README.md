@@ -23,7 +23,7 @@ Java empleado:
 ## Herramientas:
 Hemos tenido diferentes inconvenientes con los plugins del **pom.xml**
 en especial con **maven-assembly-plugin**.
-Sea libre de actualizar la versión a `2.5.0`
+Sea libre de actualizar la versión a `2.5.5` ante cualquier inconveniente
 
 ```xml
 <artifactId>maven-assembly-plugin</artifactId>
@@ -51,12 +51,12 @@ El mismo generará los ejecutables y correrá los tests.
 Abrir una terminal en el directorio raíz del proyecto y correr el siguiente comando:
 
 Para Linux/Mac:
-```
+```bash
 ./mvnw clean install -Drun-compiler
 ```
 
 Para Windows:
-```
+```powershell
 ./mvnw.cmd clean install -Drun-compiler
 ```
 
