@@ -18,6 +18,8 @@ s1 = "hola"
 
 s1 = "hola"
 
+s1 = "hello"  /*Prueba de omision de duplicados en TS*/
+
 /*
 s1="pepito"
 */
