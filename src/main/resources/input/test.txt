@@ -67,3 +67,21 @@ WHILE ( f2 > 0.0 ) {
 
 b = (a + 5) - (convDate(2-1-2000) - 3)
 f1 = (triangleAreaMaximum( [ 0,0 ; 5,0 ; 0,5 ] ; [ 0,0 ; 4,0 ; 0,6 ] ) * 1.0) / (f1 + 1.0)
+
+IF ( b > 3 AND b < 2021 ) {
+  WRITE(s1)
+} ELSE {
+  WRITE("ok")
+}
+b=2023
+IF ( b > 3 OR b < 2021 ) {
+  WRITE(s1)
+} ELSE {
+  WRITE("ok")
+}
+
+IF ( NOT b > 2050 ) {
+  WRITE(s1)
+} ELSE {
+  WRITE("ok")
+}
