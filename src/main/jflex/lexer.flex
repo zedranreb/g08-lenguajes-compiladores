@@ -31,7 +31,7 @@ import static lyc.compiler.constants.Constants.*;
    private void validarEntero(String texto) throws InvalidIntegerException {
     try {
         int valor = Integer.parseInt(texto);
-        if (valor < Short.MIN_VALUE || valor > Short.MAX_VALUE) { 
+        if (valor < Integer.MIN_VALUE || valor > Integer.MAX_VALUE) { 
             throw new InvalidIntegerException("LEX-ERR: La constante entera '" + texto + "' excede el tamaño de 16 bits.");
         }
     } catch (NumberFormatException e) {
@@ -41,9 +41,11 @@ import static lyc.compiler.constants.Constants.*;
 
   private void validarFloat(String texto) throws InvalidFloatException{
   	try {
-        Float.parseFloat(texto);
+        float numero = Float.parseFloat(texto);
+	      if (numero < -Float.MAX_VALUE || numero > Float.MAX_VALUE)
+		      throw new InvalidFloatException("LEX-ERR: '" + texto + "' no es un numero float valido");
     } catch (NumberFormatException e) {
-        throw new InvalidFloatException("LEX-ERR: '" + texto + "' es un numero float valido");
+        throw new InvalidFloatException("LEX-ERR: '" + texto + "' no es un numero float valido");
     }
   }
   
@@ -199,6 +201,7 @@ COMEN_FIN				= "+#" | "*/"
 
 <COMENTARIO> {  
   {COMEN_FIN}      {yybegin(YYINITIAL);}
+  [´¨üÜñÑ\^`~]	{ throw new InvalidCommentException("LEX-ERR: Caracter prohibido en comentario: " + yytext()) ; }
   {COMEN_INI}		{ throw new InvalidCommentException("LEX-ERR: No pueden existir comentarios anidados."); }
   .                 {}
   {EOL}             {}
