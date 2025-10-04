@@ -74,13 +74,19 @@ IF ( b > 3 AND b < 2021 ) {
   WRITE("ok")
 }
 b=2023
-IF ( b > 3 OR b < 2021 ) {
+IF ( b >= 3 OR b <= 2021 ) {
   WRITE(s1)
 } ELSE {
   WRITE("ok")
 }
 
-IF ( NOT b > 2050 ) {
+IF ( NOT b != 2050) {
+  WRITE(s1)
+} ELSE {
+  WRITE("ok")
+}
+
+IF ( NOT b == 2050) {
   WRITE(s1)
 } ELSE {
   WRITE("ok")

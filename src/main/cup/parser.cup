@@ -340,8 +340,12 @@ condicion_negada ::= CP_NO condicion_simple
     System.out.println("Condicion Simple Negada");
 :};
 
-operador_logico ::= CP_MEN | CP_MENI | CP_MAY | CP_MAYI | CP_IGUA | CP_DIST;
-
+operador_logico ::= CP_MEN {:System.out.println("<"); :} |
+CP_MENI {:System.out.println("Operador: <="); :}         | 
+CP_MAY {:System.out.println("Operador: >"); :}           |
+CP_MAYI {:System.out.println("Operador: >="); :}         |
+CP_IGUA {:System.out.println("Operador: =="); :}         |
+CP_DIST {:System.out.println("Operador: !="); :};
 
 // ========================================================================== //
 // ================ G: Entrada y salida
