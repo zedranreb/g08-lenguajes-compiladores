@@ -2,6 +2,7 @@ init {
   a, b , c: Int
   f1, f2 : Float
   s1 : String
+  s2 : String
   d : DateConverted
 }
 
@@ -18,8 +19,8 @@ s1 = "hola"
 
 s1 = "hola"
 
-s1 = "hello"  /*Prueba de omision de duplicados en TS*/
-
+s1 = "hello"  #+ Prueba de omision de duplicados en TS +#
+s2 = "hello"
 /*
 s1="pepito"
 */
