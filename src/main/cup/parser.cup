@@ -340,7 +340,7 @@ condicion_negada ::= CP_NO condicion_simple
     System.out.println("Condicion Simple Negada");
 :};
 
-operador_logico ::= CP_MEN {:System.out.println("<"); :} |
+operador_logico ::= CP_MEN {:System.out.println("Operador: <"); :} |
 CP_MENI {:System.out.println("Operador: <="); :}         | 
 CP_MAY {:System.out.println("Operador: >"); :}           |
 CP_MAYI {:System.out.println("Operador: >="); :}         |
