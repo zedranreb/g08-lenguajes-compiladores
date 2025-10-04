@@ -247,9 +247,9 @@ factor ::= INTEGER_CONSTANT:constant
     String lex = constant.toString();
     String nombre = "_" + lex;
     if (!action_obj.symbolTable.containsSymbol(nombre)) {
-        action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "Int", lex, lex.length()));
+        action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "Int", lex, null));
     }
-    RESULT = new Simbolo(nombre, "Int", lex, lex.length());
+    RESULT = new Simbolo(nombre, "Int", lex, null);
     System.out.println("Entero: " + constant );
 :};
 factor ::= CONST_FLO:f
@@ -257,9 +257,9 @@ factor ::= CONST_FLO:f
     String lex = f.toString();
     String nombre = "_" + lex;
     if (!action_obj.symbolTable.containsSymbol(nombre)) {
-        action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "Float", lex, lex.length()));
+        action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "Float", lex, null));
     }
-    RESULT = new Simbolo(nombre, "Float", lex, lex.length());
+    RESULT = new Simbolo(nombre, "Float", lex, null);
     System.out.println("Flotante: " + f );
 :};
 factor ::= CONST_STR:s
@@ -267,9 +267,9 @@ factor ::= CONST_STR:s
     String lex = s.toString();
     String nombre = "_" + lex;
     if (!action_obj.symbolTable.containsSymbol(nombre)) {
-        action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "String", lex, lex.length()));
+        action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "String", lex, lex.length()-2));
     }
-    RESULT = new Simbolo(nombre, "String", lex, lex.length());
+    RESULT = new Simbolo(nombre, "String", lex, lex.length()-2);
     System.out.println("Cadena: " + s );
 :};
 factor ::= OPEN_BRACKET expression:e CLOSE_BRACKET
@@ -365,7 +365,7 @@ escribe ::= CONST_STR:s
     String lex = s.toString();
     String nombre = "_" + lex;
     if (!action_obj.symbolTable.containsSymbol(nombre)) {
-        action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "String", lex, lex.length()));
+        action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "String", lex, lex.length()-2));
     }
     System.out.println("Cadena: " + s);
 :}
@@ -462,10 +462,10 @@ eje ::= CONST_FLO:cf
                 String lex = cf.toString();
                 String nombre = "_" + lex;
                 if (!action_obj.symbolTable.containsSymbol(nombre)) {
-                    action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "Float", lex, lex.length()));
+                    action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "Float", lex, null));
                 }
                 // Propagar como Simbolo tipado
-                RESULT = new Simbolo(nombre, "Float", lex, lex.length());
+                RESULT = new Simbolo(nombre, "Float", lex, null);
             :}
         | INTEGER_CONSTANT:ci
             {:
@@ -473,9 +473,9 @@ eje ::= CONST_FLO:cf
                 String lex = ci.toString();
                 String nombre = "_" + lex;
                 if (!action_obj.symbolTable.containsSymbol(nombre)) {
-                    action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "Int", lex, lex.length()));
+                    action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "Int", lex, null));
                 }
-                RESULT = new Simbolo(nombre, "Int", lex, lex.length());
+                RESULT = new Simbolo(nombre, "Int", lex, null);
             :}
         | IDENTIFIER:id
             {:
