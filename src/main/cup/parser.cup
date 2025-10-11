@@ -8,12 +8,45 @@ import java_cup.runtime.*;
 import lyc.compiler.table.*;
 import lyc.compiler.model.*;
 
+import lyc.compiler.tercetos.*;
+import lyc.compiler.files.*;
+import java.util.Stack;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 class Parser;
 
 action code
 {:
+    /**** Tabla de simbolos ****/
     public SymbolTable symbolTable = new SymbolTable();
     public ArrayList<Simbolo> symbolList = new ArrayList<>();
+
+    /**** Tercetos ****/
+    public ArrayList<Tercetos> listaDeTercetos = new ArrayList<>();
+    public Stack<Integer> tercetoStack = new Stack<>();
+    public Stack<Integer> numerosDeTercetosStack = new Stack<>();
+
+    public IntermediateCodeGenerator intermediateCode = new IntermediateCodeGenerator(listaDeTercetos);
+    public ManejadorTercetos manejador_Tercetos = new ManejadorTercetos();
+    
+    Map<Integer, String> mapaTiposTercetos = new HashMap<>();
+    public int indexTerceto = 1;
+    public int indexTercetoInicial;
+    String operadorContrario = "";
+    public int terceto_salto = 0;
+
+    public String invertirOperador(String operador) {
+    switch (operador) {
+        case "BGE": return "BLT";  // Mayor o igual -> Menor
+        case "BLE": return "BGT";  // Menor o igual -> Mayor
+        case "BGT": return "BLE";  // Mayor -> Menor o igual
+        case "BLT": return "BGE";  // Menor -> Mayor o igual
+        case "BEQ": return "BNE";  // Igual -> No igual
+        case "BNE": return "BEQ";  // No igual -> Igual
+        default: throw new RuntimeException("Operador no válido para inversión: " + operador);
+    }
+}
 :}
 
 parser code
@@ -21,6 +54,11 @@ parser code
     public ArrayList<Simbolo> getSymbolTable() { 
         return action_obj.symbolTable.getSymbolTable();
     }
+
+    public ArrayList<Tercetos> getIntermediateCode() {
+            return action_obj.manejador_Tercetos.getIntermediateCode();
+    }
+
 :}
 
 // Terminals

@@ -1,5 +1,5 @@
 init {
-  a, b , c: Int
+  a, b , c, h: Int
   f1, f2 : Float
   s1 : String
   s2 : String
@@ -8,6 +8,8 @@ init {
 
 a = 5
 b = a + 7
+c = 1
+a = b + c * h
 
 f1 = 3.0
 f2 = f1 + 2.5
