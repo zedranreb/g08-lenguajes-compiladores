@@ -252,21 +252,55 @@ assignment ::= IDENTIFIER:id ASSIG expression:e
 // ========================================================================== //
 expression ::= expression:e1 PLUS term:e2
 {:
-    // Chequeo de tipos homogéneos (no hay promoción implícita)
-    if (!((Simbolo)e1).getTipoDato().equals(((Simbolo)e2).getTipoDato())) {
-        throw new RuntimeException("Type mismatch en suma: " + ((Simbolo)e1).getTipoDato() + " + " + ((Simbolo)e2).getTipoDato());
+    // Crear el terceto de suma
+    action_obj.manejador_Tercetos.agregarTerceto(new Tercetos(indexTerceto, "+", "[" + action_obj.manejador_Tercetos.obtenerIndice("expression") + "]", "[" + action_obj.manejador_Tercetos.obtenerIndice("term") + "]"));
+    
+
+    // Validar los tipos de los operandos
+    String tipoE1 = mapaTiposTercetos.get(action_obj.manejador_Tercetos.obtenerIndice("expression"));
+    String tipoE2 = mapaTiposTercetos.get(action_obj.manejador_Tercetos.obtenerIndice("term"));
+    
+    if (tipoE1.equals(tipoE2)) {
+        // Asignar tipo al terceto de suma
+        mapaTiposTercetos.put(indexTerceto, tipoE1);
+    } else {
+        throw new RuntimeException("Type mismatch: No se puede sumar " + tipoE1 + " con " + tipoE2);
     }
-    // Propagamos tipo
-    RESULT = (Simbolo)e2;
-    System.out.println("+");
+    action_obj.manejador_Tercetos.agregarIndice("expression", indexTerceto);
+
+    indexTerceto++;
+    RESULT = new Simbolo("", tipoE1, "", null);
 :};
 expression ::= expression:e1 SUB term:e2
 {:
-    if (!((Simbolo)e1).getTipoDato().equals(((Simbolo)e2).getTipoDato())) {
-        throw new RuntimeException("Type mismatch en resta: " + ((Simbolo)e1).getTipoDato() + " - " + ((Simbolo)e2).getTipoDato());
+
+// Crear el terceto de resta
+    action_obj.manejador_Tercetos.agregarTerceto(new Tercetos(indexTerceto, "-", "[" + action_obj.manejador_Tercetos.obtenerIndice("expression") + "]", "[" + action_obj.manejador_Tercetos.obtenerIndice("term") + "]"));
+    
+      // Validar los tipos de los operandos
+    String tipoE1 = mapaTiposTercetos.get(action_obj.manejador_Tercetos.obtenerIndice("expression"));
+    String tipoE2 = mapaTiposTercetos.get(action_obj.manejador_Tercetos.obtenerIndice("term"));
+    
+    if (tipoE1.equals(tipoE2)) {
+        // Asignar tipo al terceto de resta
+        mapaTiposTercetos.put(indexTerceto, tipoE1);
+    } else {
+        if(tipoE2=="Float"){
+            System.out.println("Realizando conversión implícita de " + tipoE1 + " a " + tipoE2);
+            mapaTiposTercetos.put(indexTerceto, tipoE2);}
+        else{
+            System.out.println("Realizando conversión implícita de " + tipoE2 + " a " + tipoE1);
+            mapaTiposTercetos.put(indexTerceto, tipoE1);
+            }
     }
-    RESULT = (Simbolo)e2;
-    System.out.println("-");
+
+    
+
+    mapaTiposTercetos.put(indexTerceto, tipoE1);
+    action_obj.manejador_Tercetos.agregarIndice("expression", indexTerceto);   
+
+    indexTerceto++;
+    RESULT = new Simbolo("", tipoE1, "", null);
 :};
 expression ::= term:t
 {:
@@ -275,19 +309,56 @@ expression ::= term:t
 :};
 term ::= term:t MULT factor:f
 {:
-    if (!((Simbolo)t).getTipoDato().equals(((Simbolo)f).getTipoDato())) {
-        throw new RuntimeException("Type mismatch en multiplicación: " + ((Simbolo)t).getTipoDato() + " * " + ((Simbolo)f).getTipoDato());
+   // Crear el terceto de multiplicación
+    action_obj.manejador_Tercetos.agregarTerceto(new Tercetos(indexTerceto, "*", "[" + action_obj.manejador_Tercetos.obtenerIndice("term") + "]", "[" + action_obj.manejador_Tercetos.obtenerIndice("factor") + "]"));
+    
+
+    // Validar los tipos de los operandos
+    String tipoT = mapaTiposTercetos.get(action_obj.manejador_Tercetos.obtenerIndice("term"));
+    String tipoF = mapaTiposTercetos.get(action_obj.manejador_Tercetos.obtenerIndice("factor"));
+    
+
+    if (tipoT.equals(tipoF)) {
+        // Asignar tipo al terceto de resta
+        mapaTiposTercetos.put(indexTerceto, tipoT);
+    } else {
+        if(tipoT=="Float"){
+            System.out.println("Realizando conversión implícita de " + tipoF + " a " + tipoT);
+            mapaTiposTercetos.put(indexTerceto, tipoT);}
+        else{
+            System.out.println("Realizando conversión implícita de " + tipoT + " a " + tipoF);
+            mapaTiposTercetos.put(indexTerceto, tipoF);
+            }
     }
-    RESULT = (Simbolo)f;
-    System.out.println("*");
+    action_obj.manejador_Tercetos.agregarIndice("term", indexTerceto);
+    indexTerceto++;
+    RESULT = new Simbolo("", tipoT, "", null);
 :};
 term ::= term:t DIV factor:f
 {:
-    if (!((Simbolo)t).getTipoDato().equals(((Simbolo)f).getTipoDato())) {
-        throw new RuntimeException("Type mismatch en división: " + ((Simbolo)t).getTipoDato() + " / " + ((Simbolo)f).getTipoDato());
+     // Crear el terceto de división
+    action_obj.manejador_Tercetos.agregarTerceto(new Tercetos(indexTerceto, "/", "[" + action_obj.manejador_Tercetos.obtenerIndice("term") + "]", "[" + action_obj.manejador_Tercetos.obtenerIndice("factor") + "]"));
+    
+    // Validar los tipos de los operandos
+    String tipoT = mapaTiposTercetos.get(action_obj.manejador_Tercetos.obtenerIndice("term"));
+    String tipoF = mapaTiposTercetos.get(action_obj.manejador_Tercetos.obtenerIndice("factor"));
+    
+    
+    if (tipoT.equals(tipoF)) {
+        // Asignar tipo al terceto de resta
+        mapaTiposTercetos.put(indexTerceto, tipoT);
+    } else {
+        if(tipoT=="Float"){
+            System.out.println("Realizando conversión implícita de " + tipoF + " a " + tipoT);
+            mapaTiposTercetos.put(indexTerceto, tipoT);}
+        else{
+            System.out.println("Realizando conversión implícita de " + tipoT + " a " + tipoF);
+            mapaTiposTercetos.put(indexTerceto, tipoF);
+            }
     }
-    RESULT = (Simbolo)f;
-    System.out.println("/");
+    action_obj.manejador_Tercetos.agregarIndice("term", indexTerceto);
+    indexTerceto++;
+    RESULT = new Simbolo("", tipoT, "", null);
 :};
 term ::= factor:f
 {:

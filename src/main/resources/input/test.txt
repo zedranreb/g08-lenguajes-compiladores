@@ -1,6 +1,6 @@
 init {
-  a, b: Int
-
+  a, b, c, d: Int
+  f1, f2 : Float
   s1 : String
 
 }
@@ -9,6 +9,10 @@ a = 5
 
 b = 2
 
-s1 = "hola"
+c = a * b
 
-a = b
+d = c / a
+
+f2 = f1 + 2.5
+
+f2 = f1 * f2
