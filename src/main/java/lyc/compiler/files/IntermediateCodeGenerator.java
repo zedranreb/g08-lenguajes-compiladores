@@ -14,6 +14,7 @@ public class IntermediateCodeGenerator implements FileGenerator {
 
     @Override
     public void generate(FileWriter fileWriter) throws IOException {
+        //fileWriter.write("prbando que funcione \n");
         for (Tercetos terceto : intermediateCode) {
             fileWriter.write(terceto.toString() + "\n");
         }

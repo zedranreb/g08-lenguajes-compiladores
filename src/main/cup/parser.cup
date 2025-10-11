@@ -215,11 +215,34 @@ assignment ::= IDENTIFIER:id ASSIG expression:e
     if (e == null) {
         throw new RuntimeException("Expresión nula en asignación a '" + id + "'.");
     }
+
+
     String tVar = var.getTipoDato();
     String tExp = ((Simbolo)e).getTipoDato();
     if (!tExp.equals("DATE_CONVERTED") && !tVar.equals("DATE_CONVERTED") && !tVar.equals(tExp)) {
         throw new RuntimeException("Type mismatch: no se puede asignar " + tExp + " a variable " + id + " de tipo " + tVar);
     }
+
+
+    int indiceExpresion = action_obj.manejador_Tercetos.obtenerIndice("expression");
+    String tipoExpresion = mapaTiposTercetos.get(indiceExpresion); 
+
+    // Realizar el cambio del tipo de dato en el mapa si es necesario
+    if (!tVar.equals(tipoExpresion)) {
+        System.out.println("Realizando conversión implícita de " + tipoExpresion + " a " + tVar);
+
+        // Actualizar el tipo de dato en el mapa para reflejar el cambio implícito
+        mapaTiposTercetos.put(indiceExpresion, tVar);
+        if(tVar == "Int"){
+             action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "TRUNC", "[" + indiceExpresion + "]", "_");
+             indexTerceto++;
+        }
+    }
+
+    // Generar el terceto de asignación
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, ":=", "[" + indiceExpresion + "]", id.toString());
+    mapaTiposTercetos.put(indexTerceto, tVar); // Asignar el tipo de la variable destino al nuevo terceto
+    indexTerceto++;
 
     System.out.println("Asignacion de : " + id);
 :};
@@ -247,6 +270,7 @@ expression ::= expression:e1 SUB term:e2
 :};
 expression ::= term:t
 {:
+    action_obj.manejador_Tercetos.apuntarAOtroIndice("expression", "term");
     RESULT = t;
 :};
 term ::= term:t MULT factor:f
@@ -267,6 +291,7 @@ term ::= term:t DIV factor:f
 :};
 term ::= factor:f
 {:
+    action_obj.manejador_Tercetos.apuntarAOtroIndice("term", "factor");
     RESULT = f;
 :};
 factor ::= IDENTIFIER:id
@@ -276,6 +301,14 @@ factor ::= IDENTIFIER:id
     if (s == null) {
         throw new RuntimeException("La variable '" + id + "' no fue declarada.");
     }
+
+    // Crear el terceto y asignar el tipo de dato desde la tabla de símbolos
+    action_obj.manejador_Tercetos.agregarTerceto(new Tercetos(indexTerceto, id.toString(), "_", "_"));
+    action_obj.manejador_Tercetos.agregarIndice("factor", indexTerceto);
+    
+    // Asignar tipo al terceto
+    mapaTiposTercetos.put(indexTerceto, s.getTipoDato());
+    indexTerceto++;
     RESULT = s;
     System.out.println("Id: " + id);
 :};
@@ -287,6 +320,13 @@ factor ::= INTEGER_CONSTANT:constant
     if (!action_obj.symbolTable.containsSymbol(nombre)) {
         action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "Int", lex, null));
     }
+
+     // Crear el terceto y asignar tipo de dato "Int"
+    action_obj.manejador_Tercetos.agregarTerceto(new Tercetos(indexTerceto, constant.toString(), "_", "_"));
+    action_obj.manejador_Tercetos.agregarIndice("factor", indexTerceto);
+    mapaTiposTercetos.put(indexTerceto, "Int");
+    
+    indexTerceto++;
     RESULT = new Simbolo(nombre, "Int", lex, null);
     System.out.println("Entero: " + constant );
 :};
@@ -297,16 +337,33 @@ factor ::= CONST_FLO:f
     if (!action_obj.symbolTable.containsSymbol(nombre)) {
         action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "Float", lex, null));
     }
+
+    // Crear el terceto y asignar tipo de dato "Float"
+    action_obj.manejador_Tercetos.agregarTerceto(new Tercetos(indexTerceto, f.toString(), "_", "_"));
+    action_obj.manejador_Tercetos.agregarIndice("factor", indexTerceto);
+    mapaTiposTercetos.put(indexTerceto, "Float"); 
+    
+    indexTerceto++;
+
     RESULT = new Simbolo(nombre, "Float", lex, null);
     System.out.println("Flotante: " + f );
 :};
 factor ::= CONST_STR:s
 {:
+   
+
     String lex = s.toString();
     String nombre = "_" + lex;
     if (!action_obj.symbolTable.containsSymbol(nombre)) {
         action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "String", lex, lex.length()-2));
     }
+
+    // Crear el terceto
+    action_obj.manejador_Tercetos.agregarTerceto(new Tercetos(indexTerceto, nombre, "_", "_"));
+    action_obj.manejador_Tercetos.agregarIndice("factor", indexTerceto);
+    mapaTiposTercetos.put(indexTerceto, "String");
+    
+    indexTerceto++;
     RESULT = new Simbolo(nombre, "String", lex, lex.length()-2);
     System.out.println("Cadena: " + s );
 :};
