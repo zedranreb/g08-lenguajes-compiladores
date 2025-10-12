@@ -21,3 +21,25 @@ f2 = f1 * f2
 
 WRITE("ok")
 READ(a)
+
+IF ( a > 2020 ) {
+  WRITE(s1)
+} ELSE {
+  WRITE("ok")
+}
+
+IF ( b >= a ) {
+  IF ( c == b ) {
+    a = a + 1
+  } ELSE {
+    c = c + 2
+  }
+} ELSE {
+  b = b + 3
+}
+
+s1 = "hola"
+
+WHILE ( a > 0 ) {
+  b = b + 4
+}

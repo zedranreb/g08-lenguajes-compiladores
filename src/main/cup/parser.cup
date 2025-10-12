@@ -479,25 +479,71 @@ conjunto_condicion ::= condicion_simple
                     | condicion_multiple
                     | condicion_negada;
 
-condicion_simple ::= expression:e1 operador_logico expression:e2
+condicion_simple ::= expression:e1 {:tercetoStack.push(indexTerceto - 1);:} operador_logico expression:e2
 {:
-    // Validar que ambos lados estén tipados y sean comparables (mismo tipo)
-    if (e1 == null || e2 == null) {
-        throw new RuntimeException("Expresión nula en condición simple.");
+     int indiceExpr2 = indexTerceto -1; 
+    int indiceExpr1 = tercetoStack.pop(); 
+
+    String tipoFactor1 = mapaTiposTercetos.get(indiceExpr1);
+    String tipoFactor2 = mapaTiposTercetos.get(indiceExpr2);
+
+    // Verificar si los tipos de datos son compatibles
+    if (tipoFactor1 == null || tipoFactor2 == null) {
+        throw new RuntimeException("Error: Uno de los tipos de los factores no está definido.");
     }
-    String t1 = ((Simbolo)e1).getTipoDato();
-    String t2 = ((Simbolo)e2).getTipoDato();
-    if (!t1.equals(t2)) {
-        throw new RuntimeException("Type mismatch en comparación: " + t1 + " con " + t2);
+
+    if (!tipoFactor1.equals(tipoFactor2)) {
+        throw new RuntimeException("Type mismatch: No se puede comparar un " + tipoFactor1 + " con un " + tipoFactor2);
     }
+
+    System.out.println("Condición simple con tipos compatibles: " + tipoFactor1 + " y " + tipoFactor2);
+
+    
+    int indiceComparacion = action_obj.manejador_Tercetos.getIntermediateCode().size() + 1;
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "CMP", "[" + indiceExpr1 + "]", "[" + indiceExpr2 + "]");
+    mapaTiposTercetos.put(indiceComparacion, "bool");
+    indexTerceto++;
+
+
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, operadorContrario, "_", "_");
+    numerosDeTercetosStack.push(indexTerceto);
+    indexTerceto++;
 :};
 
 condicion_multiple ::= condicion_simple:cs CP_Y condicion_simple 
 {:
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "BI", "[" + Integer.toString(indexTerceto+2 ) + "]", "_");
+    indexTerceto++;
+
+    int saltoSegundaCondicion = numerosDeTercetosStack.pop();
+    action_obj.manejador_Tercetos.modificarTerceto(saltoSegundaCondicion, 2, "[" + Integer.toString(indexTerceto) + "]");
+    int saltoPrimeraCondicion = numerosDeTercetosStack.pop();
+    action_obj.manejador_Tercetos.modificarTerceto(saltoPrimeraCondicion, 2, "[" + Integer.toString(indexTerceto) + "]");
+
+
+
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "BI", "_", "_");
+    numerosDeTercetosStack.push(indexTerceto);
+    indexTerceto++;
     System.out.println("Condicion Multiple con AND");
 :}
-                    |  condicion_simple:cs CP_O condicion_simple 
+                    |  condicion_simple:cs 
 {:
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "BI", "_", "_");
+    numerosDeTercetosStack.push(indexTerceto);
+    indexTerceto++;
+:} 
+CP_O condicion_simple 
+{:
+    int saltoSegundaCondicion = numerosDeTercetosStack.pop();
+    int saltoBI = numerosDeTercetosStack.pop();
+
+    action_obj.manejador_Tercetos.modificarTerceto(saltoBI, 2, "[" + Integer.toString(indexTerceto) + "]");
+    int saltoPrimeraCondicion = numerosDeTercetosStack.pop();
+    action_obj.manejador_Tercetos.modificarTerceto(saltoPrimeraCondicion, 2, "[" + Integer.toString(saltoPrimeraCondicion+2) + "]");
+
+    numerosDeTercetosStack.push(saltoSegundaCondicion);
+
     System.out.println("Condicion Multiple con OR");
 :};
 
@@ -506,12 +552,12 @@ condicion_negada ::= CP_NO condicion_simple
     System.out.println("Condicion Simple Negada");
 :};
 
-operador_logico ::= CP_MEN {:System.out.println("Operador: <"); :} |
-CP_MENI {:System.out.println("Operador: <="); :}         | 
-CP_MAY {:System.out.println("Operador: >"); :}           |
-CP_MAYI {:System.out.println("Operador: >="); :}         |
-CP_IGUA {:System.out.println("Operador: =="); :}         |
-CP_DIST {:System.out.println("Operador: !="); :};
+operador_logico ::= CP_MEN {: operadorContrario = "BGE";  System.out.println("Operador: <"); :} |
+CP_MENI {: operadorContrario = "BGT"; System.out.println("Operador: <="); :}         | 
+CP_MAY {: operadorContrario = "BLE"; System.out.println("Operador: >"); :}           |
+CP_MAYI {: operadorContrario = "BLT"; System.out.println("Operador: >="); :}         |
+CP_IGUA {: operadorContrario = "BNE"; System.out.println("Operador: =="); :}         |
+CP_DIST {: operadorContrario = "BEQ"; System.out.println("Operador: !="); :};
 
 // ========================================================================== //
 // ================ G: Entrada y salida
@@ -567,10 +613,26 @@ escribe ::= CONST_STR:s
 // ========================================================================== //
 sentence ::= IF condicion CA_LA lista_sentencia CA_LC 
 {:
+    int nroTercetoDesapilado = numerosDeTercetosStack.pop();
+    action_obj.manejador_Tercetos.modificarTerceto(nroTercetoDesapilado, 2 ,"[" + Integer.toString(indexTerceto) +"]");
     System.out.println("IF: completado");
 :}
-            | IF condicion CA_LA lista_sentencia CA_LC ELSE CA_LA lista_sentencia CA_LC
+            | IF condicion CA_LA lista_sentencia CA_LC 
 {:
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "BI", "_", "_");
+    indexTerceto++;
+    int nroTercetoDesapilado = numerosDeTercetosStack.pop();
+    action_obj.manejador_Tercetos.modificarTerceto(nroTercetoDesapilado, 2 ,"[" + Integer.toString(indexTerceto) +"]");
+
+    numerosDeTercetosStack.push(indexTerceto-1);
+
+:}            
+ELSE CA_LA lista_sentencia CA_LC
+{:
+    System.out.println("If - Else");
+    int nroTercetoDesapilado = numerosDeTercetosStack.pop();
+
+    action_obj.manejador_Tercetos.modificarTerceto(nroTercetoDesapilado, 2 ,"[" + Integer.toString(indexTerceto ) +"]");
     System.out.println("IF / ELSE: completado");
 :};
 
@@ -578,8 +640,22 @@ sentence ::= IF condicion CA_LA lista_sentencia CA_LC
 // ================ A: While
 // ========================================================================== //
 
-sentence ::= WHILE condicion CA_LA lista_sentencia CA_LC 
+sentence ::= WHILE 
 {:
+numerosDeTercetosStack.push(indexTerceto);
+:}
+
+condicion CA_LA lista_sentencia CA_LC 
+{:
+    System.out.println("Bucle While");
+    int nroTercetoDesapilado= numerosDeTercetosStack.pop();
+    action_obj.manejador_Tercetos.modificarTerceto(nroTercetoDesapilado, 2 ,"[" + Integer.toString(indexTerceto +1) +"]");
+
+
+    nroTercetoDesapilado = numerosDeTercetosStack.pop();
+
+    action_obj.manejador_Tercetos.agregarTerceto(new Tercetos(indexTerceto, "BI", "[" + Integer.toString(nroTercetoDesapilado)+"]", "_"));
+    indexTerceto++;
     System.out.println("WHILE: completado");
 :};
 
