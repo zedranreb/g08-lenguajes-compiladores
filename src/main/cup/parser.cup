@@ -522,10 +522,16 @@ sentence ::= READ OPEN_BRACKET IDENTIFIER:id CLOSE_BRACKET
     if (!action_obj.symbolTable.containsSymbol(id.toString())) {
         throw new RuntimeException("READ sobre variable no declarada: " + id);
     }
+
+    action_obj.manejador_Tercetos.agregarTerceto(new Tercetos(indexTerceto,"READ" ,  id.toString(),"_"));
+    indexTerceto++;
     System.out.println("READ: " + id + " completado");
 :};
+
+
 sentence ::= WRITE OPEN_BRACKET escribe CLOSE_BRACKET
 {:
+    
     System.out.println("WRITE: completado");
 :};
 
@@ -537,6 +543,12 @@ escribe ::= CONST_STR:s
     if (!action_obj.symbolTable.containsSymbol(nombre)) {
         action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "String", lex, lex.length()-2));
     }
+
+    // Crear el terceto
+    action_obj.manejador_Tercetos.agregarTerceto(new Tercetos(indexTerceto,"WRITE" ,s.toString(), "_"));
+ 
+    indexTerceto++;
+
     System.out.println("Cadena: " + s);
 :}
           | IDENTIFIER:id
@@ -544,6 +556,9 @@ escribe ::= CONST_STR:s
     if (!action_obj.symbolTable.containsSymbol(id.toString())) {
         throw new RuntimeException("WRITE sobre variable no declarada: " + id);
     }
+
+    action_obj.manejador_Tercetos.agregarTerceto(new Tercetos(indexTerceto,"WRITE" , id.toString() ,"_"));
+    indexTerceto++;
     System.out.println("Id: " + id);
 :};
 			
