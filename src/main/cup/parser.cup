@@ -763,7 +763,83 @@ por tres números enteros (día, mes y año) en un único valor numérico con el
 CONV(22-03-2021) = 20210322
 */
 sentence ::= CONV OPEN_BRACKET fecha CLOSE_BRACKET {: System.out.println("ConvDate: Completado"); :};
-fecha ::= dia SUB mes SUB anio;
-dia ::= INTEGER_CONSTANT;
-mes ::= INTEGER_CONSTANT;
-anio ::= INTEGER_CONSTANT;
+fecha ::= dia SUB mes SUB anio {:
+    // Validar fecha correcta
+    int[] diasDelMes = {31,28,31,30,31,30,31,31,30,31,30,31};
+    int resAnio = Integer.parseInt(anio.getValor());
+    int resMes = Integer.parseInt(mes.getValor());
+    int resDia = Integer.parseInt(dia.getValor());
+    
+    // Validación fecha correcta
+    if( ( resAnio % 4 == 0 && resAnio % 100 != 0) || resAnio % 400 == 0 )
+        diasDelMes[2-1] = diasDelMes[2-1] + 1;
+    
+    if ( resMes > 12 || resMes < 1)
+        throw new RuntimeException("ERROR: Mes invalido.");
+    
+    if ( resDia > diasDelMes[resMes - 1] + || resDia < 1)
+        throw new RuntimeException("ERROR: Dia invalido.");
+
+    /* TERCETO */
+    // Incorporar los tercetos para la sumas de las multiplicaciones individuales
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "+", indexTerceto, indexTerceto - 1);
+    indexTerceto++;
+
+    /* Incorporar terceto multiplicar anio por 1000 */
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "+", indexTerceto, indexTerceto - 5);
+    indexTerceto++;
+:};
+
+dia ::= INTEGER_CONSTANT:dia {:
+    // Registrar constante Float con prefijo "_" en tabla de simbolos
+    String lex = dia.toString();
+    String nombre = "_" + lex;
+    if (!action_obj.symbolTable.containsSymbol(nombre)) {
+        Simbolo nuevoSimbolo = new Simbolo(nombre, "Int", lex, null);
+        action_obj.symbolTable.addNewSymbols(nuevoSimbolo);
+    }
+
+    /* TERCETO */
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, dia.toString(), "_", "_");
+    indexTerceto++;
+    
+    RESULT = nuevoSimbolo; 
+:};
+mes ::= INTEGER_CONSTANT:mes {:
+    // Registrar constante Float con prefijo "_" en tabla de simbolos
+    String lex = mes.toString();
+    String nombre = "_" + lex;
+    if (!action_obj.symbolTable.containsSymbol(nombre)) {
+        Simbolo nuevoSimbolo = new Simbolo(nombre, "Int", lex, null);
+        action_obj.symbolTable.addNewSymbols(nuevoSimbolo);
+    }
+
+    /* TERCETO */
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, mes.toString(), "_", "_");
+    indexTerceto++;
+
+    /* Incorporar terceto multiplicar mes por 100 */
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "*", indexTerceto, "100");
+    indexTerceto++;
+
+    RESULT = nuevoSimbolo; 
+:};
+anio ::= INTEGER_CONSTANT:anio {:
+    // Registrar constante Float con prefijo "_" en tabla de simbolos
+    String lex = anio.toString();
+    String nombre = "_" + lex;
+    if (!action_obj.symbolTable.containsSymbol(nombre)) {
+        Simbolo nuevoSimbolo = new Simbolo(nombre, "Int", lex, null);
+        action_obj.symbolTable.addNewSymbols(nuevoSimbolo);
+    }
+
+    /* TERCETO */
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, anio.toString(), "_", "_");
+    indexTerceto++;
+
+    /* Incorporar terceto multiplicar anio por 1000 */
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "*", indexTerceto, "1000");
+    indexTerceto++;
+
+    RESULT = nuevoSimbolo; 
+:};
