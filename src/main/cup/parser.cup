@@ -463,6 +463,10 @@ factor ::= CONV OPEN_BRACKET fecha CLOSE_BRACKET
 {:
     // 'fecha' se define como dia SUB mes SUB anio; tokens enteros.
     RESULT = new Simbolo("convDateResult", "Int", "", 0);
+    action_obj.manejador_Tercetos.apuntarAOtroIndice("factor","convdate");
+    
+    //mapaTiposTercetos.put(indexTerceto, tVar); // Asignar el tipo de la variable destino al nuevo terceto
+
     System.out.println("convDate usado como factor");
 :};
 
@@ -763,12 +767,12 @@ por tres números enteros (día, mes y año) en un único valor numérico con el
 CONV(22-03-2021) = 20210322
 */
 sentence ::= CONV OPEN_BRACKET fecha CLOSE_BRACKET {: System.out.println("ConvDate: Completado"); :};
-fecha ::= dia SUB mes SUB anio {:
+fecha ::= dia:dia SUB mes:mes SUB anio:anio {:
     // Validar fecha correcta
     int[] diasDelMes = {31,28,31,30,31,30,31,31,30,31,30,31};
-    int resAnio = Integer.parseInt(anio.getValor());
-    int resMes = Integer.parseInt(mes.getValor());
-    int resDia = Integer.parseInt(dia.getValor());
+    Integer resAnio = Integer.parseInt(((Simbolo)anio).getValor());
+    Integer resMes = Integer.parseInt(((Simbolo)mes).getValor());
+    Integer resDia = Integer.parseInt(((Simbolo)dia).getValor());
     
     // Validación fecha correcta
     if( ( resAnio % 4 == 0 && resAnio % 100 != 0) || resAnio % 400 == 0 )
@@ -777,17 +781,18 @@ fecha ::= dia SUB mes SUB anio {:
     if ( resMes > 12 || resMes < 1)
         throw new RuntimeException("ERROR: Mes invalido.");
     
-    if ( resDia > diasDelMes[resMes - 1] + || resDia < 1)
+    if ( resDia > diasDelMes[resMes - 1] || resDia < 1)
         throw new RuntimeException("ERROR: Dia invalido.");
 
     /* TERCETO */
     // Incorporar los tercetos para la sumas de las multiplicaciones individuales
-    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "+", indexTerceto, indexTerceto - 1);
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "+", "[" + (indexTerceto - 1) + "]", "[" + (indexTerceto - 3) + "]");
     indexTerceto++;
 
     /* Incorporar terceto multiplicar anio por 1000 */
-    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "+", indexTerceto, indexTerceto - 5);
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "+", "[" + (indexTerceto - 1) + "]", "[" + (indexTerceto - 6) + "]");
     indexTerceto++;
+    action_obj.manejador_Tercetos.agregarIndice("convdate", indexTerceto);
 :};
 
 dia ::= INTEGER_CONSTANT:dia {:
@@ -798,12 +803,12 @@ dia ::= INTEGER_CONSTANT:dia {:
         Simbolo nuevoSimbolo = new Simbolo(nombre, "Int", lex, null);
         action_obj.symbolTable.addNewSymbols(nuevoSimbolo);
     }
-
+    Simbolo nuevoSimbolo = action_obj.symbolTable.getSymbol(nombre);
     /* TERCETO */
     action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, dia.toString(), "_", "_");
     indexTerceto++;
     
-    RESULT = nuevoSimbolo; 
+    RESULT = nuevoSimbolo;
 :};
 mes ::= INTEGER_CONSTANT:mes {:
     // Registrar constante Float con prefijo "_" en tabla de simbolos
@@ -813,16 +818,16 @@ mes ::= INTEGER_CONSTANT:mes {:
         Simbolo nuevoSimbolo = new Simbolo(nombre, "Int", lex, null);
         action_obj.symbolTable.addNewSymbols(nuevoSimbolo);
     }
-
+    Simbolo nuevoSimbolo = action_obj.symbolTable.getSymbol(nombre);
     /* TERCETO */
     action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, mes.toString(), "_", "_");
     indexTerceto++;
 
     /* Incorporar terceto multiplicar mes por 100 */
-    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "*", indexTerceto, "100");
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "*", "[" + (indexTerceto - 1) + "]", "100");
     indexTerceto++;
 
-    RESULT = nuevoSimbolo; 
+    RESULT = nuevoSimbolo;
 :};
 anio ::= INTEGER_CONSTANT:anio {:
     // Registrar constante Float con prefijo "_" en tabla de simbolos
@@ -832,14 +837,14 @@ anio ::= INTEGER_CONSTANT:anio {:
         Simbolo nuevoSimbolo = new Simbolo(nombre, "Int", lex, null);
         action_obj.symbolTable.addNewSymbols(nuevoSimbolo);
     }
-
+    Simbolo nuevoSimbolo = action_obj.symbolTable.getSymbol(nombre);
     /* TERCETO */
     action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, anio.toString(), "_", "_");
     indexTerceto++;
 
     /* Incorporar terceto multiplicar anio por 1000 */
-    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "*", indexTerceto, "1000");
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "*", "[" + (indexTerceto - 1) + "]", "1000");
     indexTerceto++;
 
-    RESULT = nuevoSimbolo; 
+    RESULT = nuevoSimbolo;
 :};
