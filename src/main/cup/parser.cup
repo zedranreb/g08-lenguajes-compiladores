@@ -480,9 +480,8 @@ factor ::= TAM OPEN_BRACKET lista_cartesiana CLOSE_BRACKET
 
     action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "@aux", "_", "_");
     action_obj.manejador_Tercetos.agregarIndice("factor", indexTerceto);
-    indexTerceto++;
-
     mapaTiposTercetos.put(indexTerceto, "Float");
+    indexTerceto++;
 
     RESULT = new Simbolo("triangleAreaMaximumResult", "Float", "", 0);
     System.out.println("triangleAreaMaximum usado como factor");
@@ -494,9 +493,10 @@ factor ::= CONV OPEN_BRACKET fecha CLOSE_BRACKET
     // 'fecha' se define como dia SUB mes SUB anio; tokens enteros.
     RESULT = new Simbolo("convDateResult", "Int", "", 0);
     action_obj.manejador_Tercetos.apuntarAOtroIndice("factor","convdate");
+    mapaTiposTercetos.put(indexTerceto, "DATE_CONVERTED");
     
     //mapaTiposTercetos.put(indexTerceto, tVar); // Asignar el tipo de la variable destino al nuevo terceto
-
+    RESULT = new Simbolo("convDate", "DATE_CONVERTED", "", 0);
     System.out.println("convDate usado como factor");
 :};
 
@@ -740,14 +740,14 @@ sentence ::= TAM OPEN_BRACKET lista_cartesiana CLOSE_BRACKET
 lista_cartesiana ::= triangulo 
         {:
             System.out.println("Area del primer triangulo calcuda");
-            action_obj.manejador_Tercetos.agregarIndice("triangulo1", indexTerceto);
+            action_obj.manejador_Tercetos.agregarIndice("triangulo1", indexTerceto - 1);
 
         :}
     CA_PY 
 triangulo
         {:
             System.out.println("Area del segundo triangulo calcuda");
-            action_obj.manejador_Tercetos.agregarIndice("triangulo2", indexTerceto);
+            action_obj.manejador_Tercetos.agregarIndice("triangulo2", indexTerceto - 1);
         :};
 
 triangulo ::= CA_CA punto CA_PY punto CA_PY punto CA_CC 
@@ -854,8 +854,6 @@ punto ::= eje:x CA_CO eje:y
     }
 
     String valorX, valorY;
-    System.out.println("ValorX:" + ((Simbolo)x).getValor() + " : " + tx);
-    System.out.println("ValorY:" + ((Simbolo)y).getValor() + " : " + ty);
     if(((Simbolo)x).getNombre().charAt(0) == '_') {
         valorX = ((Simbolo)x).getValor();
     } else {
