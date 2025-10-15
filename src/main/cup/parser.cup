@@ -455,6 +455,35 @@ factor ::= OPEN_BRACKET expression:e CLOSE_BRACKET
 factor ::= TAM OPEN_BRACKET lista_cartesiana CLOSE_BRACKET
 {:
     // 'lista_cartesiana' ya valida que las coordenadas sean Int/Float y que los IDs existan.
+    int indiceTriangulo1 = action_obj.manejador_Tercetos.obtenerIndice("triangulo1");
+    int indiceTriangulo2 = action_obj.manejador_Tercetos.obtenerIndice("triangulo2");
+
+    // Realizar la validacion de cual es el triangulo con mayor area
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "CMP", "[" + indiceTriangulo1 + "]", "[" + indiceTriangulo2 + "]");
+    indexTerceto++;
+
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "BGE", "_", "_");
+    numerosDeTercetosStack.push(indexTerceto);
+    indexTerceto++;
+
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, ":=", "[" + indiceTriangulo2 + "]", "@aux");
+    action_obj.manejador_Tercetos.modificarTerceto(numerosDeTercetosStack.pop(),2,"[" + (indexTerceto + 2) + "]");
+    indexTerceto++;
+
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "BI", "_", "_");
+    numerosDeTercetosStack.push(indexTerceto);
+    indexTerceto++;
+
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, ":=", "[" + indiceTriangulo1 + "]", "@aux");
+    action_obj.manejador_Tercetos.modificarTerceto(numerosDeTercetosStack.pop(),2,"[" + (indexTerceto + 1) + "]");
+    indexTerceto++;
+
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "@aux", "_", "_");
+    action_obj.manejador_Tercetos.agregarIndice("factor", indexTerceto);
+    indexTerceto++;
+
+    mapaTiposTercetos.put(indexTerceto, "Float");
+
     RESULT = new Simbolo("triangleAreaMaximumResult", "Float", "", 0);
     System.out.println("triangleAreaMaximum usado como factor");
 :};
@@ -700,7 +729,7 @@ Constantes o Variables, enteras o flotantes.
 sentence ::= TAM OPEN_BRACKET lista_cartesiana CLOSE_BRACKET 
             {:
                 System.out.println("triangleAreaMaximum: Completado");
-/*                 action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "CMP", "@Atr1", "@ATr2");
+/*              action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "CMP", "@Atr1", "@ATr2");
                 indexTerceto++;    
 
                 action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "CMP", "@Atr1", "@ATr2");
@@ -713,16 +742,12 @@ lista_cartesiana ::= triangulo
             System.out.println("Area del primer triangulo calcuda");
             action_obj.manejador_Tercetos.agregarIndice("triangulo1", indexTerceto);
 
-            action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, ":=", "[" + (indexTerceto - 1) + "]", "@ATr1");
-            indexTerceto++;
         :}
     CA_PY 
 triangulo
         {:
             System.out.println("Area del segundo triangulo calcuda");
-            
-            action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, ":=", "[" + (indexTerceto - 1) + "]", "@ATr2");
-            indexTerceto++;
+            action_obj.manejador_Tercetos.agregarIndice("triangulo2", indexTerceto);
         :};
 
 triangulo ::= CA_CA punto CA_PY punto CA_PY punto CA_CC 
