@@ -1,6 +1,6 @@
 init {
   a, b , c, h: Int
-  f1, f2 : Float
+  f1, f2, tam : Float
   s1 : String
   s2 : String
   d : DateConverted
@@ -35,6 +35,7 @@ WRITE("ok")
 #+f1=triangleAreaMaximum([1,b;3.2,5;a,c];[1,2;3.5,b;2.8,5])+#
 #+ X: convDate +#
 a=convDate(12-12-2025)
+d=convDate(12-12-2025)
 
 IF ( a > 2020 ) {
   WRITE(s1)
@@ -70,6 +71,9 @@ WHILE ( f2 > 0.0 ) {
 b = (a + 5) - (convDate(2-1-2000) - 3)
 f1 = (triangleAreaMaximum( [ 0,0 ; 5,0 ; 0,5 ] ; [ 0,0 ; 4,0 ; 0,6 ] ) * 1.0) / (f1 + 1.0)
 +#
+
+tam = triangleAreaMaximum( [ 0,0 ; 5,0 ; 0,5 ] ; [ 0,0 ; 4,0 ; 0,6 ] )
+
 IF ( b > 3 AND b < 2021 ) {
   WRITE(s1)
 } ELSE {

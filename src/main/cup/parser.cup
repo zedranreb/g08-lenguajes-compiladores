@@ -35,6 +35,7 @@ action code
     public int indexTercetoInicial;
     String operadorContrario = "";
     public int terceto_salto = 0;
+    private char puntoTAM = 'A';
 
     public String invertirOperador(String operador) {
     switch (operador) {
@@ -699,27 +700,175 @@ Constantes o Variables, enteras o flotantes.
 sentence ::= TAM OPEN_BRACKET lista_cartesiana CLOSE_BRACKET 
             {:
                 System.out.println("triangleAreaMaximum: Completado");
+/*                 action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "CMP", "@Atr1", "@ATr2");
+                indexTerceto++;    
+
+                action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "CMP", "@Atr1", "@ATr2");
+                indexTerceto++;  */ 
+
             :};
             
-lista_cartesiana ::= triangulo CA_PY triangulo;
+lista_cartesiana ::= triangulo 
+        {:
+            System.out.println("Area del primer triangulo calcuda");
+            action_obj.manejador_Tercetos.agregarIndice("triangulo1", indexTerceto);
 
-triangulo ::= CA_CA punto CA_PY punto CA_PY punto CA_CC;
+            action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, ":=", "[" + (indexTerceto - 1) + "]", "@ATr1");
+            indexTerceto++;
+        :}
+    CA_PY 
+triangulo
+        {:
+            System.out.println("Area del segundo triangulo calcuda");
+            
+            action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, ":=", "[" + (indexTerceto - 1) + "]", "@ATr2");
+            indexTerceto++;
+        :};
+
+triangulo ::= CA_CA punto CA_PY punto CA_PY punto CA_CC 
+{:
+    // Calcular vector AB
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "@Bx", "_" , "_");
+    indexTerceto++;
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "@Ax", "_" , "_");
+    indexTerceto++;
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "-", "[" + (indexTerceto - 2) + "]", "[" + (indexTerceto - 1) + "]");
+    indexTerceto++;
+
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, ":=", "[" + (indexTerceto - 1) + "]", "@vABx");
+    indexTerceto++;
+
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "@By", "_" , "_");
+    indexTerceto++;
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "@Ay", "_" , "_");
+    indexTerceto++;
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "-", "[" + (indexTerceto - 2) + "]", "[" + (indexTerceto - 1) + "]");
+    indexTerceto++;
+
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, ":=", "[" + (indexTerceto - 1) + "]", "@vABy");
+    indexTerceto++;
+
+    // Calcular vector AC
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "@Cx", "_" , "_");
+    indexTerceto++;
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "@Ax", "_" , "_");
+    indexTerceto++;
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "-", "[" + (indexTerceto - 2) + "]", "[" + (indexTerceto - 1) + "]");
+    indexTerceto++;
+
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, ":=", "[" + (indexTerceto - 1) + "]", "@vACx");
+    indexTerceto++;
+
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "@Cy", "_" , "_");
+    indexTerceto++;
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "@Ay", "_" , "_");
+    indexTerceto++;
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "-", "[" + (indexTerceto - 2) + "]", "[" + (indexTerceto - 1) + "]");
+    indexTerceto++;
+
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, ":=", "[" + (indexTerceto - 1) + "]", "@vACy");
+    indexTerceto++;
+    
+    // Calcular area
+    // Area triangulo = abs((@vACx,@vACy).(-@vABy,@vABx))/2 --> abs(@vACx * @vABy * (-1) + @vACy * @vABx)/2
+
+    // @vACx * @vABy * (-1)
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "@vABy", "_" , "_");
+    indexTerceto++;
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "-1", "_" , "_");
+    indexTerceto++;
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "*", "[" + (indexTerceto - 2) + "]", "[" + (indexTerceto - 1) + "]");
+    indexTerceto++;
+    
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "@vACx", "_" , "_");
+    indexTerceto++;
+
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "*", "[" + (indexTerceto - 2) + "]", "[" + (indexTerceto - 1) + "]");
+    indexTerceto++;
+
+    //  @vACy * @vABx
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "@vACy", "_" , "_");
+    indexTerceto++;
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "@vABx", "_" , "_");
+    indexTerceto++;
+
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "*", "[" + (indexTerceto - 2) + "]", "[" + (indexTerceto - 1) + "]");
+    indexTerceto++;
+
+    // @vACx * @vABy * (-1) + @vACy * @vABx
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "+", "[" + (indexTerceto - 4) + "]", "[" + (indexTerceto - 1) + "]");
+    indexTerceto++;
+    
+    // abs( @vACx * @vABy * (-1) + @vACy * @vABx) 
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "ABS", "[" + (indexTerceto - 1) + "]", "_");
+    indexTerceto++;
+
+    // abs( @vACx * @vABy * (-1) + @vACy * @vABx) / 2
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "2", "_", "_");
+    indexTerceto++;
+
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "/", "[" + (indexTerceto - 2) + "]", "[" + (indexTerceto - 1) + "]");
+    indexTerceto++;
+
+    // Reiniciar el punto
+    puntoTAM = 'A';
+    
+:};
 
 punto ::= eje:x CA_CO eje:y
-            {:
-                // x e y vienen como Simbolo (ver 'eje')
-                String tx = ((Simbolo)x).getTipoDato();
-                String ty = ((Simbolo)y).getTipoDato();
+{:
+    // x e y vienen como Simbolo (ver 'eje')
+    String tx = ((Simbolo)x).getTipoDato();
+    String ty = ((Simbolo)y).getTipoDato();
 
-                // Solo se permiten coordenadas numéricas (Int o Float)
-                boolean xNum = tx.equals("Int") || tx.equals("Float");
-                boolean yNum = ty.equals("Int") || ty.equals("Float");
-                if (!xNum || !yNum) {
-                    throw new RuntimeException("Coordenadas no numéricas en punto: (" + tx + ", " + ty + ")");
-                }
+    // Solo se permiten coordenadas numéricas (Int o Float)
+    boolean xNum = tx.equals("Int") || tx.equals("Float") ||  tx.equals("CONST_INT") || tx.equals("CONST_FLOAT");
+    boolean yNum = ty.equals("Int") || ty.equals("Float") ||  ty.equals("CONST_INT") || ty.equals("CONST_FLOAT");
+    if (!xNum || !yNum) {
+        throw new RuntimeException("Coordenadas no numéricas en punto: (" + tx + ", " + ty + ")");
+    }
 
-                System.out.println(((Simbolo)x).getNombre()+","+((Simbolo)y).getNombre());
-            :};
+    String valorX, valorY;
+    System.out.println("ValorX:" + ((Simbolo)x).getValor() + " : " + tx);
+    System.out.println("ValorY:" + ((Simbolo)y).getValor() + " : " + ty);
+    if(((Simbolo)x).getNombre().charAt(0) == '_') {
+        valorX = ((Simbolo)x).getValor();
+    } else {
+        valorX = ((Simbolo)x).getNombre();
+    }
+
+    if(((Simbolo)y).getNombre().charAt(0) == '_') {
+        valorY = ((Simbolo)y).getValor();
+    } else {
+        valorY = ((Simbolo)y).getNombre();
+    }
+
+    /* TERCETO */
+    // Incorporar el valor de x, la variable acumuladora, el valor de y la variable acumuladora y sus respectiva sumas
+    // x
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, valorX, "_" , "_");
+    indexTerceto++;
+
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "@" + puntoTAM + "x", "_" , "_");
+    indexTerceto++;
+
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "+", "[" + (indexTerceto - 1) + "]", "[" + (indexTerceto - 2) + "]");
+    indexTerceto++;
+
+    // Incorporar el valor de x, la variable acumuladora, el valor de y la variable acumuladora y sus respectiva sumas
+    // y
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, valorY, "_" , "_");
+    indexTerceto++;
+
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "@" + puntoTAM + "y", "_" , "_");
+    indexTerceto++;
+
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "+", "[" + (indexTerceto - 1) + "]", "[" + (indexTerceto - 2) + "]");
+    indexTerceto++;
+
+    System.out.println("Punto ("+ puntoTAM +"): " + ((Simbolo)x).getNombre()+","+((Simbolo)y).getNombre());
+    puntoTAM++;
+:};
             
 eje ::= CONST_FLO:cf
             {:
@@ -729,8 +878,9 @@ eje ::= CONST_FLO:cf
                 if (!action_obj.symbolTable.containsSymbol(nombre)) {
                     action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "Float", lex, null));
                 }
+                Simbolo sim = action_obj.symbolTable.getSymbol(nombre);
                 // Propagar como Simbolo tipado
-                RESULT = new Simbolo(nombre, "Float", lex, null);
+                RESULT = sim;
             :}
         | INTEGER_CONSTANT:ci
             {:
@@ -740,7 +890,10 @@ eje ::= CONST_FLO:cf
                 if (!action_obj.symbolTable.containsSymbol(nombre)) {
                     action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "Int", lex, null));
                 }
-                RESULT = new Simbolo(nombre, "Int", lex, null);
+                
+                Simbolo sim = action_obj.symbolTable.getSymbol(nombre);
+                // Propagar como Simbolo tipado
+                RESULT = sim;
             :}
         | IDENTIFIER:id
             {:
