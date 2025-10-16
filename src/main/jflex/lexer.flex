@@ -29,24 +29,16 @@ import static lyc.compiler.constants.Constants.*;
   }
   
    private void validarEntero(String texto) throws InvalidIntegerException {
-    try {
         int valor = Integer.parseInt(texto);
-        if (valor < Integer.MIN_VALUE || valor > Integer.MAX_VALUE) { 
+        if (valor < -65535 || valor > 65535) { 
             throw new InvalidIntegerException("LEX-ERR: La constante entera '" + texto + "' excede el tamaño de 16 bits.");
         }
-    } catch (NumberFormatException e) {
-        throw new InvalidIntegerException("LEX-ERR: '" + texto + "' no es un numero entero valido.");
-    }
   }
 
   private void validarFloat(String texto) throws InvalidFloatException{
-  	try {
         float numero = Float.parseFloat(texto);
-	      if (numero < -Float.MAX_VALUE || numero > Float.MAX_VALUE)
+	      if (numero < -3.4028235e+38 || numero > 3.4028235e+38)
 		      throw new InvalidFloatException("LEX-ERR: '" + texto + "' no es un numero float valido");
-    } catch (NumberFormatException e) {
-        throw new InvalidFloatException("LEX-ERR: '" + texto + "' no es un numero float valido");
-    }
   }
   
   private void validarString(String texto) throws InvalidLengthException {
