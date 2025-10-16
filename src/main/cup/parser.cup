@@ -220,6 +220,9 @@ assignment ::= IDENTIFIER:id ASSIG expression:e
 
     String tVar = var.getTipoDato();
     String tExp = ((Simbolo)e).getTipoDato();
+    if(tVar.equals("DATE_CONVERTED") && tExp.equals("String")){
+        throw new RuntimeException("Type mismatch: no se puede asignar " + tExp + " a variable " + id + " de tipo " + tVar);
+    }
     if (!tExp.equals("DATE_CONVERTED") && !tVar.equals("DATE_CONVERTED") && !tVar.equals(tExp)) {
         throw new RuntimeException("Type mismatch: no se puede asignar " + tExp + " a variable " + id + " de tipo " + tVar);
     }
