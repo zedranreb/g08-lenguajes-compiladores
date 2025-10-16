@@ -1,38 +1,67 @@
+#+
+	TEMAS COMUNES:
+	A: While
+	B: If / if - else
+	C: Asignaciones
+	D: Operaciones Aritméticas
+	E: Tipos de datos
+	F: Declaración de variables
+	G: Entrada y salida
+	H: Condiciones
+
+	TEMAS ESPECIALES
+	Z: triangleAreaMaximum
+	X: convDate
++#
+
+#+ ========================================================================== +#
+#+ ================ F: Declaración de variables y E: Tipos de datos           +#
+#+ ========================================================================== +#
+
 init {
-  a, b , c: Int
-  f1, f2 : Float
+  a, b , c, h: Int
+  f1, f2, tam : Float
   s1 : String
   s2 : String
   d : DateConverted
 }
 
+#+ ========================================================================== +#
+#+ ================ C: Asignaciones y D: Operaciones Aritméticas              +#
+#+ ========================================================================== +#
+
 a = 5
 b = a + 7
-
+c = 1
+a = b + c * h
 f1 = 3.0
 f2 = f1 + 2.5
 d = 12-12-2025
-
-#+
+#+ <- Comentario intermedio -> +#
+#+ 
 s1 = "hola"
 +#
 
 s1 = "hola"
 
-s1 = "hello"  #+ Prueba de omision de duplicados en TS +#
+#+ <- Prueba de omision de duplicados en TS -> +#
+s1 = "hello" 
 s2 = "hello"
 /*
 s1="pepito"
 */
 
+#+ ========================================================================== +#
+#+ ================ G: Entrada y salida                                       +#
+#+ ========================================================================== +#
+
 READ(a)
 WRITE(s1)
 WRITE("ok")
 
-
-f1=triangleAreaMaximum([1,b;3.2,5;a,c];[1,2;3.5,b;2.8,5])
-#+ X: convDate +#
-a=convDate(12-12-2025)
+#+ ========================================================================== +#
+#+ ================ B: If / if - else y H: Condiciones                        +#
+#+ ========================================================================== +#
 
 IF ( a > 2020 ) {
   WRITE(s1)
@@ -49,24 +78,6 @@ IF ( b >= a ) {
 } ELSE {
   b = b + 3
 }
-
-WHILE ( a > 0 ) {
-  IF ( b < a ) {
-    b = b + 1
-  } ELSE {
-    a = a - 1
-  }
-}
-
-WHILE ( f2 > 0.0 ) {
-  WHILE ( f1 < f2 ) {
-    f1 = f1 + 1.0
-  }
-  f2 = f2 - 1.0
-}
-
-b = (a + 5) - (convDate(2-1-2000) - 3)
-f1 = (triangleAreaMaximum( [ 0,0 ; 5,0 ; 0,5 ] ; [ 0,0 ; 4,0 ; 0,6 ] ) * 1.0) / (f1 + 1.0)
 
 IF ( b > 3 AND b < 2021 ) {
   WRITE(s1)
@@ -92,6 +103,50 @@ IF ( NOT b == 2050) {
   WRITE("ok")
 }
 
+#+ ========================================================================== +#
+#+ ================ A: While                                                  +#
+#+ ========================================================================== +#
+
+WHILE ( a > 0 ) {
+  IF ( b < a ) {
+    b = b + 1
+  } ELSE {
+    a = a - 1
+  }
+}
+
+WHILE ( f2 > 0.0 ) {
+  WHILE ( f1 < f2 ) {
+    f1 = f1 + 1.0
+  }
+  f2 = f2 - 1.0
+}
+
+#+ ========================================================================== +#
+#+ ================ X: convDate                                               +#
+#+ ========================================================================== +#
+
+d=convDate(12-12-2025)
+
+#+ <- Conversion implicita -> +#
+a=convDate(31-12-2025)
+
+#+ <- Usado como factor -> +#
+b = (a + 5) - (convDate(2-1-2000) - 3)
+
+#+ ========================================================================== +#
+#+ ================ Z: triangleAreaMaximum                                    +#
+#+ ========================================================================== +#
+
+tam=triangleAreaMaximum([1,b;3.2,5;a,c];[1,2;3.5,b;2.8,5])
+
+#+ <- Usado como factor -> +#
+f1 = (triangleAreaMaximum( [ 0,0 ; 5,0 ; 0,5 ] ; [ 0,0 ; 4,0 ; 0,6 ] ) * 1.0) / (f1 + 1.0)
+
+#+ ========================================================================== +#
+#+ ================ PRUEBAS VARIAS PARA CORROBORAR ERRORES                    +#
+#+ ========================================================================== +#
+
 #+ Los caracteres que se encuentran prohibidos en los comentarios son: +#
 #+ La letra enie minúscula y mayúscula +#
 #+ La letra u con diériesis minúscula y mayúscula +#
@@ -99,12 +154,16 @@ IF ( NOT b == 2050) {
 #+ Sea libre de probarlos incorporandolos en un comentario +#
 
 #+ Para validar el correcto funcionamiento de las cotas del float, descomente la siguiente linea: +#
-#+ f1 = -141679831679834678913789644167413671467938671489467183989173408917340193741980374190387401983749017340198734091873489102734098173489017904871290347198237410983.740918734098173409187348901749310873248 +#
-#+ f1 = 141679831679834678913789644167413671467938671489467183989173408917340193741980374190387401983749017340198734091873489102734098173489017904871290347198237410983.740918734098173409187348901749310873248 +#
+#+ f1 = -141679831679834678913789644167413671467938671489467183989173408917340193741980374190387401983749017340198734091873489102734098173489017904871290347198237410983.740918734098173409187348901749310873248+#
+#+f1 = 141679831679834678913789644167413671467938671489467183989173408917340193741980374190387401983749017340198734091873489102734098173489017904871290347198237410983.740918734098173409187348901749310873248+#
 
 #+ Para validar el correcto funcionamiento de las cotas del int, descomente la siguiente linea: +#
-#+ a = 17804930789413417089 +#
-#+ a = -17804930789413417089 +#
+#+ a = 17804930789413417089+#
+#+a = -17804930789413417089+#
 
 #+ Para validar el correcto funcionamiento del largo del string, descomente la siguiente linea: +#
 #+ s1 = "Were talking awayI dont know what Im to sayI'll say it anywayToday is another day to find youShyin' awayOh, I'll be comin' for your love, okay" +#
+
+#+Para validar correcto funcionamiento type mismatch, descomente la siguiente linea: +#
+#+s1=4+#
+#+c="s"+#

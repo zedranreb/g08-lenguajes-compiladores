@@ -8,12 +8,46 @@ import java_cup.runtime.*;
 import lyc.compiler.table.*;
 import lyc.compiler.model.*;
 
+import lyc.compiler.tercetos.*;
+import lyc.compiler.files.*;
+import java.util.Stack;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 class Parser;
 
 action code
 {:
+    /**** Tabla de simbolos ****/
     public SymbolTable symbolTable = new SymbolTable();
     public ArrayList<Simbolo> symbolList = new ArrayList<>();
+
+    /**** Tercetos ****/
+    public ArrayList<Tercetos> listaDeTercetos = new ArrayList<>();
+    public Stack<Integer> tercetoStack = new Stack<>();
+    public Stack<Integer> numerosDeTercetosStack = new Stack<>();
+
+    public IntermediateCodeGenerator intermediateCode = new IntermediateCodeGenerator(listaDeTercetos);
+    public ManejadorTercetos manejador_Tercetos = new ManejadorTercetos();
+    
+    Map<Integer, String> mapaTiposTercetos = new HashMap<>();
+    public int indexTerceto = 1;
+    public int indexTercetoInicial;
+    String operadorContrario = "";
+    public int terceto_salto = 0;
+    private char puntoTAM = 'A';
+
+    public String invertirOperador(String operador) {
+    switch (operador) {
+        case "BGE": return "BLT";  // Mayor o igual -> Menor
+        case "BLE": return "BGT";  // Menor o igual -> Mayor
+        case "BGT": return "BLE";  // Mayor -> Menor o igual
+        case "BLT": return "BGE";  // Menor -> Mayor o igual
+        case "BEQ": return "BNE";  // Igual -> No igual
+        case "BNE": return "BEQ";  // No igual -> Igual
+        default: throw new RuntimeException("Operador no válido para inversión: " + operador);
+    }
+}
 :}
 
 parser code
@@ -21,6 +55,11 @@ parser code
     public ArrayList<Simbolo> getSymbolTable() { 
         return action_obj.symbolTable.getSymbolTable();
     }
+
+    public ArrayList<Tercetos> getIntermediateCode() {
+            return action_obj.manejador_Tercetos.getIntermediateCode();
+    }
+
 :}
 
 // Terminals
@@ -177,11 +216,37 @@ assignment ::= IDENTIFIER:id ASSIG expression:e
     if (e == null) {
         throw new RuntimeException("Expresión nula en asignación a '" + id + "'.");
     }
+
+
     String tVar = var.getTipoDato();
     String tExp = ((Simbolo)e).getTipoDato();
+    if(tVar.equals("DATE_CONVERTED") && tExp.equals("String")){
+        throw new RuntimeException("Type mismatch: no se puede asignar " + tExp + " a variable " + id + " de tipo " + tVar);
+    }
     if (!tExp.equals("DATE_CONVERTED") && !tVar.equals("DATE_CONVERTED") && !tVar.equals(tExp)) {
         throw new RuntimeException("Type mismatch: no se puede asignar " + tExp + " a variable " + id + " de tipo " + tVar);
     }
+
+
+    int indiceExpresion = action_obj.manejador_Tercetos.obtenerIndice("expression");
+    String tipoExpresion = mapaTiposTercetos.get(indiceExpresion); 
+
+    // Realizar el cambio del tipo de dato en el mapa si es necesario
+    if (!tVar.equals(tipoExpresion)) {
+        System.out.println("Realizando conversión implícita de " + tipoExpresion + " a " + tVar);
+
+        // Actualizar el tipo de dato en el mapa para reflejar el cambio implícito
+        mapaTiposTercetos.put(indiceExpresion, tVar);
+        if(tVar == "Int"){
+             action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "TRUNC", "[" + indiceExpresion + "]", "_");
+             indexTerceto++;
+        }
+    }
+
+    // Generar el terceto de asignación
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, ":=", "[" + indiceExpresion + "]", id.toString());
+    mapaTiposTercetos.put(indexTerceto, tVar); // Asignar el tipo de la variable destino al nuevo terceto
+    indexTerceto++;
 
     System.out.println("Asignacion de : " + id);
 :};
@@ -191,44 +256,117 @@ assignment ::= IDENTIFIER:id ASSIG expression:e
 // ========================================================================== //
 expression ::= expression:e1 PLUS term:e2
 {:
-    // Chequeo de tipos homogéneos (no hay promoción implícita)
-    if (!((Simbolo)e1).getTipoDato().equals(((Simbolo)e2).getTipoDato())) {
-        throw new RuntimeException("Type mismatch en suma: " + ((Simbolo)e1).getTipoDato() + " + " + ((Simbolo)e2).getTipoDato());
+    // Crear el terceto de suma
+    action_obj.manejador_Tercetos.agregarTerceto(new Tercetos(indexTerceto, "+", "[" + action_obj.manejador_Tercetos.obtenerIndice("expression") + "]", "[" + action_obj.manejador_Tercetos.obtenerIndice("term") + "]"));
+    
+
+    // Validar los tipos de los operandos
+    String tipoE1 = mapaTiposTercetos.get(action_obj.manejador_Tercetos.obtenerIndice("expression"));
+    String tipoE2 = mapaTiposTercetos.get(action_obj.manejador_Tercetos.obtenerIndice("term"));
+    
+    if (tipoE1.equals(tipoE2)) {
+        // Asignar tipo al terceto de suma
+        mapaTiposTercetos.put(indexTerceto, tipoE1);
+    } else {
+        throw new RuntimeException("Type mismatch: No se puede sumar " + tipoE1 + " con " + tipoE2);
     }
-    // Propagamos tipo
-    RESULT = (Simbolo)e2;
-    System.out.println("+");
+    action_obj.manejador_Tercetos.agregarIndice("expression", indexTerceto);
+
+    indexTerceto++;
+    RESULT = new Simbolo("", tipoE1, "", null);
 :};
 expression ::= expression:e1 SUB term:e2
 {:
-    if (!((Simbolo)e1).getTipoDato().equals(((Simbolo)e2).getTipoDato())) {
-        throw new RuntimeException("Type mismatch en resta: " + ((Simbolo)e1).getTipoDato() + " - " + ((Simbolo)e2).getTipoDato());
+
+// Crear el terceto de resta
+    action_obj.manejador_Tercetos.agregarTerceto(new Tercetos(indexTerceto, "-", "[" + action_obj.manejador_Tercetos.obtenerIndice("expression") + "]", "[" + action_obj.manejador_Tercetos.obtenerIndice("term") + "]"));
+    
+      // Validar los tipos de los operandos
+    String tipoE1 = mapaTiposTercetos.get(action_obj.manejador_Tercetos.obtenerIndice("expression"));
+    String tipoE2 = mapaTiposTercetos.get(action_obj.manejador_Tercetos.obtenerIndice("term"));
+    
+    if (tipoE1.equals(tipoE2)) {
+        // Asignar tipo al terceto de resta
+        mapaTiposTercetos.put(indexTerceto, tipoE1);
+    } else {
+        if(tipoE2=="Float"){
+            System.out.println("Realizando conversión implícita de " + tipoE1 + " a " + tipoE2);
+            mapaTiposTercetos.put(indexTerceto, tipoE2);}
+        else{
+            System.out.println("Realizando conversión implícita de " + tipoE2 + " a " + tipoE1);
+            mapaTiposTercetos.put(indexTerceto, tipoE1);
+            }
     }
-    RESULT = (Simbolo)e2;
-    System.out.println("-");
+
+    
+
+    mapaTiposTercetos.put(indexTerceto, tipoE1);
+    action_obj.manejador_Tercetos.agregarIndice("expression", indexTerceto);   
+
+    indexTerceto++;
+    RESULT = new Simbolo("", tipoE1, "", null);
 :};
 expression ::= term:t
 {:
+    action_obj.manejador_Tercetos.apuntarAOtroIndice("expression", "term");
     RESULT = t;
 :};
 term ::= term:t MULT factor:f
 {:
-    if (!((Simbolo)t).getTipoDato().equals(((Simbolo)f).getTipoDato())) {
-        throw new RuntimeException("Type mismatch en multiplicación: " + ((Simbolo)t).getTipoDato() + " * " + ((Simbolo)f).getTipoDato());
+   // Crear el terceto de multiplicación
+    action_obj.manejador_Tercetos.agregarTerceto(new Tercetos(indexTerceto, "*", "[" + action_obj.manejador_Tercetos.obtenerIndice("term") + "]", "[" + action_obj.manejador_Tercetos.obtenerIndice("factor") + "]"));
+    
+
+    // Validar los tipos de los operandos
+    String tipoT = mapaTiposTercetos.get(action_obj.manejador_Tercetos.obtenerIndice("term"));
+    String tipoF = mapaTiposTercetos.get(action_obj.manejador_Tercetos.obtenerIndice("factor"));
+    
+
+    if (tipoT.equals(tipoF)) {
+        // Asignar tipo al terceto de resta
+        mapaTiposTercetos.put(indexTerceto, tipoT);
+    } else {
+        if(tipoT=="Float"){
+            System.out.println("Realizando conversión implícita de " + tipoF + " a " + tipoT);
+            mapaTiposTercetos.put(indexTerceto, tipoT);}
+        else{
+            System.out.println("Realizando conversión implícita de " + tipoT + " a " + tipoF);
+            mapaTiposTercetos.put(indexTerceto, tipoF);
+            }
     }
-    RESULT = (Simbolo)f;
-    System.out.println("*");
+    action_obj.manejador_Tercetos.agregarIndice("term", indexTerceto);
+    indexTerceto++;
+    RESULT = new Simbolo("", tipoT, "", null);
 :};
 term ::= term:t DIV factor:f
 {:
-    if (!((Simbolo)t).getTipoDato().equals(((Simbolo)f).getTipoDato())) {
-        throw new RuntimeException("Type mismatch en división: " + ((Simbolo)t).getTipoDato() + " / " + ((Simbolo)f).getTipoDato());
+     // Crear el terceto de división
+    action_obj.manejador_Tercetos.agregarTerceto(new Tercetos(indexTerceto, "/", "[" + action_obj.manejador_Tercetos.obtenerIndice("term") + "]", "[" + action_obj.manejador_Tercetos.obtenerIndice("factor") + "]"));
+    
+    // Validar los tipos de los operandos
+    String tipoT = mapaTiposTercetos.get(action_obj.manejador_Tercetos.obtenerIndice("term"));
+    String tipoF = mapaTiposTercetos.get(action_obj.manejador_Tercetos.obtenerIndice("factor"));
+    
+    
+    if (tipoT.equals(tipoF)) {
+        // Asignar tipo al terceto de resta
+        mapaTiposTercetos.put(indexTerceto, tipoT);
+    } else {
+        if(tipoT=="Float"){
+            System.out.println("Realizando conversión implícita de " + tipoF + " a " + tipoT);
+            mapaTiposTercetos.put(indexTerceto, tipoT);}
+        else{
+            System.out.println("Realizando conversión implícita de " + tipoT + " a " + tipoF);
+            mapaTiposTercetos.put(indexTerceto, tipoF);
+            }
     }
-    RESULT = (Simbolo)f;
-    System.out.println("/");
+    action_obj.manejador_Tercetos.agregarIndice("term", indexTerceto);
+    indexTerceto++;
+    RESULT = new Simbolo("", tipoT, "", null);
 :};
 term ::= factor:f
 {:
+    action_obj.manejador_Tercetos.apuntarAOtroIndice("term", "factor");
     RESULT = f;
 :};
 factor ::= IDENTIFIER:id
@@ -238,6 +376,14 @@ factor ::= IDENTIFIER:id
     if (s == null) {
         throw new RuntimeException("La variable '" + id + "' no fue declarada.");
     }
+
+    // Crear el terceto y asignar el tipo de dato desde la tabla de símbolos
+    action_obj.manejador_Tercetos.agregarTerceto(new Tercetos(indexTerceto, id.toString(), "_", "_"));
+    action_obj.manejador_Tercetos.agregarIndice("factor", indexTerceto);
+    
+    // Asignar tipo al terceto
+    mapaTiposTercetos.put(indexTerceto, s.getTipoDato());
+    indexTerceto++;
     RESULT = s;
     System.out.println("Id: " + id);
 :};
@@ -249,6 +395,13 @@ factor ::= INTEGER_CONSTANT:constant
     if (!action_obj.symbolTable.containsSymbol(nombre)) {
         action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "Int", lex, null));
     }
+
+     // Crear el terceto y asignar tipo de dato "Int"
+    action_obj.manejador_Tercetos.agregarTerceto(new Tercetos(indexTerceto, constant.toString(), "_", "_"));
+    action_obj.manejador_Tercetos.agregarIndice("factor", indexTerceto);
+    mapaTiposTercetos.put(indexTerceto, "Int");
+    
+    indexTerceto++;
     RESULT = new Simbolo(nombre, "Int", lex, null);
     System.out.println("Entero: " + constant );
 :};
@@ -259,16 +412,33 @@ factor ::= CONST_FLO:f
     if (!action_obj.symbolTable.containsSymbol(nombre)) {
         action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "Float", lex, null));
     }
+
+    // Crear el terceto y asignar tipo de dato "Float"
+    action_obj.manejador_Tercetos.agregarTerceto(new Tercetos(indexTerceto, f.toString(), "_", "_"));
+    action_obj.manejador_Tercetos.agregarIndice("factor", indexTerceto);
+    mapaTiposTercetos.put(indexTerceto, "Float"); 
+    
+    indexTerceto++;
+
     RESULT = new Simbolo(nombre, "Float", lex, null);
     System.out.println("Flotante: " + f );
 :};
 factor ::= CONST_STR:s
 {:
+   
+
     String lex = s.toString();
     String nombre = "_" + lex;
     if (!action_obj.symbolTable.containsSymbol(nombre)) {
         action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "String", lex, lex.length()-2));
     }
+
+    // Crear el terceto
+    action_obj.manejador_Tercetos.agregarTerceto(new Tercetos(indexTerceto, nombre, "_", "_"));
+    action_obj.manejador_Tercetos.agregarIndice("factor", indexTerceto);
+    mapaTiposTercetos.put(indexTerceto, "String");
+    
+    indexTerceto++;
     RESULT = new Simbolo(nombre, "String", lex, lex.length()-2);
     System.out.println("Cadena: " + s );
 :};
@@ -288,6 +458,34 @@ factor ::= OPEN_BRACKET expression:e CLOSE_BRACKET
 factor ::= TAM OPEN_BRACKET lista_cartesiana CLOSE_BRACKET
 {:
     // 'lista_cartesiana' ya valida que las coordenadas sean Int/Float y que los IDs existan.
+    int indiceTriangulo1 = action_obj.manejador_Tercetos.obtenerIndice("triangulo1");
+    int indiceTriangulo2 = action_obj.manejador_Tercetos.obtenerIndice("triangulo2");
+
+    // Realizar la validacion de cual es el triangulo con mayor area
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "CMP", "[" + indiceTriangulo1 + "]", "[" + indiceTriangulo2 + "]");
+    indexTerceto++;
+
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "BGE", "_", "_");
+    numerosDeTercetosStack.push(indexTerceto);
+    indexTerceto++;
+
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, ":=", "[" + indiceTriangulo2 + "]", "@aux");
+    action_obj.manejador_Tercetos.modificarTerceto(numerosDeTercetosStack.pop(),2,"[" + (indexTerceto + 2) + "]");
+    indexTerceto++;
+
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "BI", "_", "_");
+    numerosDeTercetosStack.push(indexTerceto);
+    indexTerceto++;
+
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, ":=", "[" + indiceTriangulo1 + "]", "@aux");
+    action_obj.manejador_Tercetos.modificarTerceto(numerosDeTercetosStack.pop(),2,"[" + (indexTerceto + 1) + "]");
+    indexTerceto++;
+
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "@aux", "_", "_");
+    action_obj.manejador_Tercetos.agregarIndice("factor", indexTerceto);
+    mapaTiposTercetos.put(indexTerceto, "Float");
+    indexTerceto++;
+
     RESULT = new Simbolo("triangleAreaMaximumResult", "Float", "", 0);
     System.out.println("triangleAreaMaximum usado como factor");
 :};
@@ -296,7 +494,10 @@ factor ::= TAM OPEN_BRACKET lista_cartesiana CLOSE_BRACKET
 factor ::= CONV OPEN_BRACKET fecha CLOSE_BRACKET
 {:
     // 'fecha' se define como dia SUB mes SUB anio; tokens enteros.
-    RESULT = new Simbolo("convDateResult", "Int", "", 0);
+    action_obj.manejador_Tercetos.apuntarAOtroIndice("factor","convdate");
+    mapaTiposTercetos.put(indexTerceto-1, "DATE_CONVERTED");
+    //mapaTiposTercetos.put(indexTerceto, tVar); // Asignar el tipo de la variable destino al nuevo terceto
+    RESULT = new Simbolo("convDate", "DATE_CONVERTED", "", 0);
     System.out.println("convDate usado como factor");
 :};
 
@@ -313,25 +514,71 @@ conjunto_condicion ::= condicion_simple
                     | condicion_multiple
                     | condicion_negada;
 
-condicion_simple ::= expression:e1 operador_logico expression:e2
+condicion_simple ::= expression:e1 {:tercetoStack.push(indexTerceto - 1);:} operador_logico expression:e2
 {:
-    // Validar que ambos lados estén tipados y sean comparables (mismo tipo)
-    if (e1 == null || e2 == null) {
-        throw new RuntimeException("Expresión nula en condición simple.");
+     int indiceExpr2 = indexTerceto -1; 
+    int indiceExpr1 = tercetoStack.pop(); 
+
+    String tipoFactor1 = mapaTiposTercetos.get(indiceExpr1);
+    String tipoFactor2 = mapaTiposTercetos.get(indiceExpr2);
+
+    // Verificar si los tipos de datos son compatibles
+    if (tipoFactor1 == null || tipoFactor2 == null) {
+        throw new RuntimeException("Error: Uno de los tipos de los factores no está definido.");
     }
-    String t1 = ((Simbolo)e1).getTipoDato();
-    String t2 = ((Simbolo)e2).getTipoDato();
-    if (!t1.equals(t2)) {
-        throw new RuntimeException("Type mismatch en comparación: " + t1 + " con " + t2);
+
+    if (!tipoFactor1.equals(tipoFactor2)) {
+        throw new RuntimeException("Type mismatch: No se puede comparar un " + tipoFactor1 + " con un " + tipoFactor2);
     }
+
+    System.out.println("Condición simple con tipos compatibles: " + tipoFactor1 + " y " + tipoFactor2);
+
+    
+    int indiceComparacion = action_obj.manejador_Tercetos.getIntermediateCode().size() + 1;
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "CMP", "[" + indiceExpr1 + "]", "[" + indiceExpr2 + "]");
+    mapaTiposTercetos.put(indiceComparacion, "bool");
+    indexTerceto++;
+
+
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, operadorContrario, "_", "_");
+    numerosDeTercetosStack.push(indexTerceto);
+    indexTerceto++;
 :};
 
 condicion_multiple ::= condicion_simple:cs CP_Y condicion_simple 
 {:
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "BI", "[" + Integer.toString(indexTerceto+2 ) + "]", "_");
+    indexTerceto++;
+
+    int saltoSegundaCondicion = numerosDeTercetosStack.pop();
+    action_obj.manejador_Tercetos.modificarTerceto(saltoSegundaCondicion, 2, "[" + Integer.toString(indexTerceto) + "]");
+    int saltoPrimeraCondicion = numerosDeTercetosStack.pop();
+    action_obj.manejador_Tercetos.modificarTerceto(saltoPrimeraCondicion, 2, "[" + Integer.toString(indexTerceto) + "]");
+
+
+
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "BI", "_", "_");
+    numerosDeTercetosStack.push(indexTerceto);
+    indexTerceto++;
     System.out.println("Condicion Multiple con AND");
 :}
-                    |  condicion_simple:cs CP_O condicion_simple 
+                    |  condicion_simple:cs 
 {:
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "BI", "_", "_");
+    numerosDeTercetosStack.push(indexTerceto);
+    indexTerceto++;
+:} 
+CP_O condicion_simple 
+{:
+    int saltoSegundaCondicion = numerosDeTercetosStack.pop();
+    int saltoBI = numerosDeTercetosStack.pop();
+
+    action_obj.manejador_Tercetos.modificarTerceto(saltoBI, 2, "[" + Integer.toString(indexTerceto) + "]");
+    int saltoPrimeraCondicion = numerosDeTercetosStack.pop();
+    action_obj.manejador_Tercetos.modificarTerceto(saltoPrimeraCondicion, 2, "[" + Integer.toString(saltoPrimeraCondicion+2) + "]");
+
+    numerosDeTercetosStack.push(saltoSegundaCondicion);
+
     System.out.println("Condicion Multiple con OR");
 :};
 
@@ -340,12 +587,12 @@ condicion_negada ::= CP_NO condicion_simple
     System.out.println("Condicion Simple Negada");
 :};
 
-operador_logico ::= CP_MEN {:System.out.println("Operador: <"); :} |
-CP_MENI {:System.out.println("Operador: <="); :}         | 
-CP_MAY {:System.out.println("Operador: >"); :}           |
-CP_MAYI {:System.out.println("Operador: >="); :}         |
-CP_IGUA {:System.out.println("Operador: =="); :}         |
-CP_DIST {:System.out.println("Operador: !="); :};
+operador_logico ::= CP_MEN {: operadorContrario = "BGE";  System.out.println("Operador: <"); :} |
+CP_MENI {: operadorContrario = "BGT"; System.out.println("Operador: <="); :}         | 
+CP_MAY {: operadorContrario = "BLE"; System.out.println("Operador: >"); :}           |
+CP_MAYI {: operadorContrario = "BLT"; System.out.println("Operador: >="); :}         |
+CP_IGUA {: operadorContrario = "BNE"; System.out.println("Operador: =="); :}         |
+CP_DIST {: operadorContrario = "BEQ"; System.out.println("Operador: !="); :};
 
 // ========================================================================== //
 // ================ G: Entrada y salida
@@ -356,10 +603,16 @@ sentence ::= READ OPEN_BRACKET IDENTIFIER:id CLOSE_BRACKET
     if (!action_obj.symbolTable.containsSymbol(id.toString())) {
         throw new RuntimeException("READ sobre variable no declarada: " + id);
     }
+
+    action_obj.manejador_Tercetos.agregarTerceto(new Tercetos(indexTerceto,"READ" ,  id.toString(),"_"));
+    indexTerceto++;
     System.out.println("READ: " + id + " completado");
 :};
+
+
 sentence ::= WRITE OPEN_BRACKET escribe CLOSE_BRACKET
 {:
+    
     System.out.println("WRITE: completado");
 :};
 
@@ -371,6 +624,12 @@ escribe ::= CONST_STR:s
     if (!action_obj.symbolTable.containsSymbol(nombre)) {
         action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "String", lex, lex.length()-2));
     }
+
+    // Crear el terceto
+    action_obj.manejador_Tercetos.agregarTerceto(new Tercetos(indexTerceto,"WRITE" ,s.toString(), "_"));
+ 
+    indexTerceto++;
+
     System.out.println("Cadena: " + s);
 :}
           | IDENTIFIER:id
@@ -378,6 +637,9 @@ escribe ::= CONST_STR:s
     if (!action_obj.symbolTable.containsSymbol(id.toString())) {
         throw new RuntimeException("WRITE sobre variable no declarada: " + id);
     }
+
+    action_obj.manejador_Tercetos.agregarTerceto(new Tercetos(indexTerceto,"WRITE" , id.toString() ,"_"));
+    indexTerceto++;
     System.out.println("Id: " + id);
 :};
 			
@@ -386,10 +648,26 @@ escribe ::= CONST_STR:s
 // ========================================================================== //
 sentence ::= IF condicion CA_LA lista_sentencia CA_LC 
 {:
+    int nroTercetoDesapilado = numerosDeTercetosStack.pop();
+    action_obj.manejador_Tercetos.modificarTerceto(nroTercetoDesapilado, 2 ,"[" + Integer.toString(indexTerceto) +"]");
     System.out.println("IF: completado");
 :}
-            | IF condicion CA_LA lista_sentencia CA_LC ELSE CA_LA lista_sentencia CA_LC
+            | IF condicion CA_LA lista_sentencia CA_LC 
 {:
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "BI", "_", "_");
+    indexTerceto++;
+    int nroTercetoDesapilado = numerosDeTercetosStack.pop();
+    action_obj.manejador_Tercetos.modificarTerceto(nroTercetoDesapilado, 2 ,"[" + Integer.toString(indexTerceto) +"]");
+
+    numerosDeTercetosStack.push(indexTerceto-1);
+
+:}            
+ELSE CA_LA lista_sentencia CA_LC
+{:
+    System.out.println("If - Else");
+    int nroTercetoDesapilado = numerosDeTercetosStack.pop();
+
+    action_obj.manejador_Tercetos.modificarTerceto(nroTercetoDesapilado, 2 ,"[" + Integer.toString(indexTerceto ) +"]");
     System.out.println("IF / ELSE: completado");
 :};
 
@@ -397,8 +675,22 @@ sentence ::= IF condicion CA_LA lista_sentencia CA_LC
 // ================ A: While
 // ========================================================================== //
 
-sentence ::= WHILE condicion CA_LA lista_sentencia CA_LC 
+sentence ::= WHILE 
 {:
+numerosDeTercetosStack.push(indexTerceto);
+:}
+
+condicion CA_LA lista_sentencia CA_LC 
+{:
+    System.out.println("Bucle While");
+    int nroTercetoDesapilado= numerosDeTercetosStack.pop();
+    action_obj.manejador_Tercetos.modificarTerceto(nroTercetoDesapilado, 2 ,"[" + Integer.toString(indexTerceto +1) +"]");
+
+
+    nroTercetoDesapilado = numerosDeTercetosStack.pop();
+
+    action_obj.manejador_Tercetos.agregarTerceto(new Tercetos(indexTerceto, "BI", "[" + Integer.toString(nroTercetoDesapilado)+"]", "_"));
+    indexTerceto++;
     System.out.println("WHILE: completado");
 :};
 
@@ -438,27 +730,169 @@ Constantes o Variables, enteras o flotantes.
 sentence ::= TAM OPEN_BRACKET lista_cartesiana CLOSE_BRACKET 
             {:
                 System.out.println("triangleAreaMaximum: Completado");
+/*              action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "CMP", "@Atr1", "@ATr2");
+                indexTerceto++;    
+
+                action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "CMP", "@Atr1", "@ATr2");
+                indexTerceto++;  */ 
+
             :};
             
-lista_cartesiana ::= triangulo CA_PY triangulo;
+lista_cartesiana ::= triangulo 
+        {:
+            System.out.println("Area del primer triangulo calcuda");
+            action_obj.manejador_Tercetos.agregarIndice("triangulo1", indexTerceto - 1);
 
-triangulo ::= CA_CA punto CA_PY punto CA_PY punto CA_CC;
+        :}
+    CA_PY 
+triangulo
+        {:
+            System.out.println("Area del segundo triangulo calcuda");
+            action_obj.manejador_Tercetos.agregarIndice("triangulo2", indexTerceto - 1);
+        :};
+
+triangulo ::= CA_CA punto CA_PY punto CA_PY punto CA_CC 
+{:
+    // Calcular vector AB
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "@Bx", "_" , "_");
+    indexTerceto++;
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "@Ax", "_" , "_");
+    indexTerceto++;
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "-", "[" + (indexTerceto - 2) + "]", "[" + (indexTerceto - 1) + "]");
+    indexTerceto++;
+
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, ":=", "[" + (indexTerceto - 1) + "]", "@vABx");
+    indexTerceto++;
+
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "@By", "_" , "_");
+    indexTerceto++;
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "@Ay", "_" , "_");
+    indexTerceto++;
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "-", "[" + (indexTerceto - 2) + "]", "[" + (indexTerceto - 1) + "]");
+    indexTerceto++;
+
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, ":=", "[" + (indexTerceto - 1) + "]", "@vABy");
+    indexTerceto++;
+
+    // Calcular vector AC
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "@Cx", "_" , "_");
+    indexTerceto++;
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "@Ax", "_" , "_");
+    indexTerceto++;
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "-", "[" + (indexTerceto - 2) + "]", "[" + (indexTerceto - 1) + "]");
+    indexTerceto++;
+
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, ":=", "[" + (indexTerceto - 1) + "]", "@vACx");
+    indexTerceto++;
+
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "@Cy", "_" , "_");
+    indexTerceto++;
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "@Ay", "_" , "_");
+    indexTerceto++;
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "-", "[" + (indexTerceto - 2) + "]", "[" + (indexTerceto - 1) + "]");
+    indexTerceto++;
+
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, ":=", "[" + (indexTerceto - 1) + "]", "@vACy");
+    indexTerceto++;
+    
+    // Calcular area
+    // Area triangulo = abs((@vACx,@vACy).(-@vABy,@vABx))/2 --> abs(@vACx * @vABy * (-1) + @vACy * @vABx)/2
+
+    // @vACx * @vABy * (-1)
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "@vABy", "_" , "_");
+    indexTerceto++;
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "-1", "_" , "_");
+    indexTerceto++;
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "*", "[" + (indexTerceto - 2) + "]", "[" + (indexTerceto - 1) + "]");
+    indexTerceto++;
+    
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "@vACx", "_" , "_");
+    indexTerceto++;
+
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "*", "[" + (indexTerceto - 2) + "]", "[" + (indexTerceto - 1) + "]");
+    indexTerceto++;
+
+    //  @vACy * @vABx
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "@vACy", "_" , "_");
+    indexTerceto++;
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "@vABx", "_" , "_");
+    indexTerceto++;
+
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "*", "[" + (indexTerceto - 2) + "]", "[" + (indexTerceto - 1) + "]");
+    indexTerceto++;
+
+    // @vACx * @vABy * (-1) + @vACy * @vABx
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "+", "[" + (indexTerceto - 4) + "]", "[" + (indexTerceto - 1) + "]");
+    indexTerceto++;
+    
+    // abs( @vACx * @vABy * (-1) + @vACy * @vABx) 
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "ABS", "[" + (indexTerceto - 1) + "]", "_");
+    indexTerceto++;
+
+    // abs( @vACx * @vABy * (-1) + @vACy * @vABx) / 2
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "2", "_", "_");
+    indexTerceto++;
+
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "/", "[" + (indexTerceto - 2) + "]", "[" + (indexTerceto - 1) + "]");
+    indexTerceto++;
+
+    // Reiniciar el punto
+    puntoTAM = 'A';
+    
+:};
 
 punto ::= eje:x CA_CO eje:y
-            {:
-                // x e y vienen como Simbolo (ver 'eje')
-                String tx = ((Simbolo)x).getTipoDato();
-                String ty = ((Simbolo)y).getTipoDato();
+{:
+    // x e y vienen como Simbolo (ver 'eje')
+    String tx = ((Simbolo)x).getTipoDato();
+    String ty = ((Simbolo)y).getTipoDato();
 
-                // Solo se permiten coordenadas numéricas (Int o Float)
-                boolean xNum = tx.equals("Int") || tx.equals("Float");
-                boolean yNum = ty.equals("Int") || ty.equals("Float");
-                if (!xNum || !yNum) {
-                    throw new RuntimeException("Coordenadas no numéricas en punto: (" + tx + ", " + ty + ")");
-                }
+    // Solo se permiten coordenadas numéricas (Int o Float)
+    boolean xNum = tx.equals("Int") || tx.equals("Float") ||  tx.equals("CONST_INT") || tx.equals("CONST_FLOAT");
+    boolean yNum = ty.equals("Int") || ty.equals("Float") ||  ty.equals("CONST_INT") || ty.equals("CONST_FLOAT");
+    if (!xNum || !yNum) {
+        throw new RuntimeException("Coordenadas no numéricas en punto: (" + tx + ", " + ty + ")");
+    }
 
-                System.out.println(((Simbolo)x).getNombre()+","+((Simbolo)y).getNombre());
-            :};
+    String valorX, valorY;
+    if(((Simbolo)x).getNombre().charAt(0) == '_') {
+        valorX = ((Simbolo)x).getValor();
+    } else {
+        valorX = ((Simbolo)x).getNombre();
+    }
+
+    if(((Simbolo)y).getNombre().charAt(0) == '_') {
+        valorY = ((Simbolo)y).getValor();
+    } else {
+        valorY = ((Simbolo)y).getNombre();
+    }
+
+    /* TERCETO */
+    // Incorporar el valor de x, la variable acumuladora, el valor de y la variable acumuladora y sus respectiva sumas
+    // x
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, valorX, "_" , "_");
+    indexTerceto++;
+
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "@" + puntoTAM + "x", "_" , "_");
+    indexTerceto++;
+
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "+", "[" + (indexTerceto - 1) + "]", "[" + (indexTerceto - 2) + "]");
+    indexTerceto++;
+
+    // Incorporar el valor de x, la variable acumuladora, el valor de y la variable acumuladora y sus respectiva sumas
+    // y
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, valorY, "_" , "_");
+    indexTerceto++;
+
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "@" + puntoTAM + "y", "_" , "_");
+    indexTerceto++;
+
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "+", "[" + (indexTerceto - 1) + "]", "[" + (indexTerceto - 2) + "]");
+    indexTerceto++;
+
+    System.out.println("Punto ("+ puntoTAM +"): " + valorX + "," + valorY);
+    puntoTAM++;
+:};
             
 eje ::= CONST_FLO:cf
             {:
@@ -468,8 +902,9 @@ eje ::= CONST_FLO:cf
                 if (!action_obj.symbolTable.containsSymbol(nombre)) {
                     action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "Float", lex, null));
                 }
+                Simbolo sim = action_obj.symbolTable.getSymbol(nombre);
                 // Propagar como Simbolo tipado
-                RESULT = new Simbolo(nombre, "Float", lex, null);
+                RESULT = sim;
             :}
         | INTEGER_CONSTANT:ci
             {:
@@ -479,7 +914,10 @@ eje ::= CONST_FLO:cf
                 if (!action_obj.symbolTable.containsSymbol(nombre)) {
                     action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "Int", lex, null));
                 }
-                RESULT = new Simbolo(nombre, "Int", lex, null);
+                
+                Simbolo sim = action_obj.symbolTable.getSymbol(nombre);
+                // Propagar como Simbolo tipado
+                RESULT = sim;
             :}
         | IDENTIFIER:id
             {:
@@ -506,7 +944,84 @@ por tres números enteros (día, mes y año) en un único valor numérico con el
 CONV(22-03-2021) = 20210322
 */
 sentence ::= CONV OPEN_BRACKET fecha CLOSE_BRACKET {: System.out.println("ConvDate: Completado"); :};
-fecha ::= dia SUB mes SUB anio;
-dia ::= INTEGER_CONSTANT;
-mes ::= INTEGER_CONSTANT;
-anio ::= INTEGER_CONSTANT;
+fecha ::= dia:dia SUB mes:mes SUB anio:anio {:
+    // Validar fecha correcta
+    int[] diasDelMes = {31,28,31,30,31,30,31,31,30,31,30,31};
+    Integer resAnio = Integer.parseInt(((Simbolo)anio).getValor());
+    Integer resMes = Integer.parseInt(((Simbolo)mes).getValor());
+    Integer resDia = Integer.parseInt(((Simbolo)dia).getValor());
+    
+    // Validación fecha correcta
+    if( ( resAnio % 4 == 0 && resAnio % 100 != 0) || resAnio % 400 == 0 )
+        diasDelMes[2-1] = diasDelMes[2-1] + 1;
+    
+    if ( resMes > 12 || resMes < 1)
+        throw new RuntimeException("ERROR: Mes invalido.");
+    
+    if ( resDia > diasDelMes[resMes - 1] || resDia < 1)
+        throw new RuntimeException("ERROR: Dia invalido.");
+
+    /* TERCETO */
+    // Incorporar los tercetos para la sumas de las multiplicaciones individuales
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "+", "[" + (indexTerceto - 1) + "]", "[" + (indexTerceto - 3) + "]");
+    indexTerceto++;
+
+    /* Incorporar terceto multiplicar anio por 1000 */
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "+", "[" + (indexTerceto - 1) + "]", "[" + (indexTerceto - 6) + "]");
+    action_obj.manejador_Tercetos.agregarIndice("convdate", indexTerceto);
+    indexTerceto++;
+:};
+
+dia ::= INTEGER_CONSTANT:dia {:
+    // Registrar constante Float con prefijo "_" en tabla de simbolos
+    String lex = dia.toString();
+    String nombre = "_" + lex;
+    if (!action_obj.symbolTable.containsSymbol(nombre)) {
+        Simbolo nuevoSimbolo = new Simbolo(nombre, "Int", lex, null);
+        action_obj.symbolTable.addNewSymbols(nuevoSimbolo);
+    }
+    Simbolo nuevoSimbolo = action_obj.symbolTable.getSymbol(nombre);
+    /* TERCETO */
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, dia.toString(), "_", "_");
+    indexTerceto++;
+    
+    RESULT = nuevoSimbolo;
+:};
+mes ::= INTEGER_CONSTANT:mes {:
+    // Registrar constante Float con prefijo "_" en tabla de simbolos
+    String lex = mes.toString();
+    String nombre = "_" + lex;
+    if (!action_obj.symbolTable.containsSymbol(nombre)) {
+        Simbolo nuevoSimbolo = new Simbolo(nombre, "Int", lex, null);
+        action_obj.symbolTable.addNewSymbols(nuevoSimbolo);
+    }
+    Simbolo nuevoSimbolo = action_obj.symbolTable.getSymbol(nombre);
+    /* TERCETO */
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, mes.toString(), "_", "_");
+    indexTerceto++;
+
+    /* Incorporar terceto multiplicar mes por 100 */
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "*", "[" + (indexTerceto - 1) + "]", "100");
+    indexTerceto++;
+
+    RESULT = nuevoSimbolo;
+:};
+anio ::= INTEGER_CONSTANT:anio {:
+    // Registrar constante Float con prefijo "_" en tabla de simbolos
+    String lex = anio.toString();
+    String nombre = "_" + lex;
+    if (!action_obj.symbolTable.containsSymbol(nombre)) {
+        Simbolo nuevoSimbolo = new Simbolo(nombre, "Int", lex, null);
+        action_obj.symbolTable.addNewSymbols(nuevoSimbolo);
+    }
+    Simbolo nuevoSimbolo = action_obj.symbolTable.getSymbol(nombre);
+    /* TERCETO */
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, anio.toString(), "_", "_");
+    indexTerceto++;
+
+    /* Incorporar terceto multiplicar anio por 1000 */
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "*", "[" + (indexTerceto - 1) + "]", "1000");
+    indexTerceto++;
+
+    RESULT = nuevoSimbolo;
+:};
