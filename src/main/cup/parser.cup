@@ -491,10 +491,8 @@ factor ::= TAM OPEN_BRACKET lista_cartesiana CLOSE_BRACKET
 factor ::= CONV OPEN_BRACKET fecha CLOSE_BRACKET
 {:
     // 'fecha' se define como dia SUB mes SUB anio; tokens enteros.
-    RESULT = new Simbolo("convDateResult", "Int", "", 0);
     action_obj.manejador_Tercetos.apuntarAOtroIndice("factor","convdate");
-    mapaTiposTercetos.put(indexTerceto, "DATE_CONVERTED");
-    
+    mapaTiposTercetos.put(indexTerceto-1, "DATE_CONVERTED");
     //mapaTiposTercetos.put(indexTerceto, tVar); // Asignar el tipo de la variable destino al nuevo terceto
     RESULT = new Simbolo("convDate", "DATE_CONVERTED", "", 0);
     System.out.println("convDate usado como factor");
@@ -889,7 +887,7 @@ punto ::= eje:x CA_CO eje:y
     action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "+", "[" + (indexTerceto - 1) + "]", "[" + (indexTerceto - 2) + "]");
     indexTerceto++;
 
-    System.out.println("Punto ("+ puntoTAM +"): " + ((Simbolo)x).getNombre()+","+((Simbolo)y).getNombre());
+    System.out.println("Punto ("+ puntoTAM +"): " + valorX + "," + valorY);
     puntoTAM++;
 :};
             
@@ -967,8 +965,8 @@ fecha ::= dia:dia SUB mes:mes SUB anio:anio {:
 
     /* Incorporar terceto multiplicar anio por 1000 */
     action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "+", "[" + (indexTerceto - 1) + "]", "[" + (indexTerceto - 6) + "]");
-    indexTerceto++;
     action_obj.manejador_Tercetos.agregarIndice("convdate", indexTerceto);
+    indexTerceto++;
 :};
 
 dia ::= INTEGER_CONSTANT:dia {:
