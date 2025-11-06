@@ -457,6 +457,14 @@ factor ::= OPEN_BRACKET expression:e CLOSE_BRACKET
 // triangleAreaMaximum -> resultado numérico (usamos Float)
 factor ::= TAM OPEN_BRACKET lista_cartesiana CLOSE_BRACKET
 {:
+    // v Incorporacion de las variables auxiliares "@" empleadas para la confeccion del programa v
+    // Variable X
+    String nombre = "@aux";
+    if (!action_obj.symbolTable.containsSymbol(nombre)) {
+        action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "Float", "", null));
+    }
+    // ^ Incorporacion de las variables auxiliares "@" empleadas para la confeccion del programa ^
+
     // 'lista_cartesiana' ya valida que las coordenadas sean Int/Float y que los IDs existan.
     int indiceTriangulo1 = action_obj.manejador_Tercetos.obtenerIndice("triangulo1");
     int indiceTriangulo2 = action_obj.manejador_Tercetos.obtenerIndice("triangulo2");
@@ -753,6 +761,63 @@ triangulo
 
 triangulo ::= CA_CA punto CA_PY punto CA_PY punto CA_CC 
 {:
+    // v Incorporacion de las variables auxiliares "@" empleadas para la confeccion del programa v
+    // "Punto" A componente x
+    /* String nombre = "@Ax";
+    if (!action_obj.symbolTable.containsSymbol(nombre)) {
+        action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "Float", "", null));
+    }
+
+    // "Punto" A componente y
+    nombre = "@Ay";
+    if (!action_obj.symbolTable.containsSymbol(nombre)) {
+        action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "Float", "", null));
+    }
+
+    // "Punto" B componente x
+    nombre = "@Bx";
+    if (!action_obj.symbolTable.containsSymbol(nombre)) {
+        action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "Float", "", null));
+    }
+
+    // "Punto" B componente y
+    nombre = "@By";
+    if (!action_obj.symbolTable.containsSymbol(nombre)) {
+        action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "Float", "", null));
+    }
+    // "Punto" C componente x
+    nombre = "@Cx";
+    if (!action_obj.symbolTable.containsSymbol(nombre)) {
+        action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "Float", "", null));
+    }
+
+    // "Punto" C componente y
+    nombre = "@Cy";
+    if (!action_obj.symbolTable.containsSymbol(nombre)) {
+        action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "Float", "", null));
+    } */
+    // "Punto" componente x
+    String nombre = "@vABx";
+    if (!action_obj.symbolTable.containsSymbol(nombre)) {
+        action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "Float", "", null));
+    }
+    // "Punto" componente y
+    nombre = "@vABy";
+    if (!action_obj.symbolTable.containsSymbol(nombre)) {
+        action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "Float", "", null));
+    }
+    // "Punto" componente x
+    nombre = "@vACx";
+    if (!action_obj.symbolTable.containsSymbol(nombre)) {
+        action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "Float", "", null));
+    }
+    // "Punto" componente x
+    nombre = "@vACy";
+    if (!action_obj.symbolTable.containsSymbol(nombre)) {
+        action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "Float", "", null));
+    }
+    // ^ Incorporacion de las variables auxiliares "@" empleadas para la confeccion del programa ^
+
     // Calcular vector AB
     action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "@Bx", "_" , "_");
     indexTerceto++;
@@ -843,6 +908,20 @@ triangulo ::= CA_CA punto CA_PY punto CA_PY punto CA_CC
 
 punto ::= eje:x CA_CO eje:y
 {:
+    // v Incorporacion de las variables auxiliares "@" empleadas para la confeccion del programa v
+    // Variable X
+    String nombre = "@" + puntoTAM + "x";
+    if (!action_obj.symbolTable.containsSymbol(nombre)) {
+        action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "Float", "", null));
+    }
+
+    // Variable Y
+    nombre = "@" + puntoTAM + "y";
+    if (!action_obj.symbolTable.containsSymbol(nombre)) {
+        action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "Float", "", null));
+    }
+    // ^ Incorporacion de las variables auxiliares "@" empleadas para la confeccion del programa ^
+
     // x e y vienen como Simbolo (ver 'eje')
     String tx = ((Simbolo)x).getTipoDato();
     String ty = ((Simbolo)y).getTipoDato();
