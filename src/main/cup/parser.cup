@@ -762,40 +762,7 @@ triangulo
 triangulo ::= CA_CA punto CA_PY punto CA_PY punto CA_CC 
 {:
     // v Incorporacion de las variables auxiliares "@" empleadas para la confeccion del programa v
-    // "Punto" A componente x
-    /* String nombre = "@Ax";
-    if (!action_obj.symbolTable.containsSymbol(nombre)) {
-        action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "Float", "", null));
-    }
-
-    // "Punto" A componente y
-    nombre = "@Ay";
-    if (!action_obj.symbolTable.containsSymbol(nombre)) {
-        action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "Float", "", null));
-    }
-
-    // "Punto" B componente x
-    nombre = "@Bx";
-    if (!action_obj.symbolTable.containsSymbol(nombre)) {
-        action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "Float", "", null));
-    }
-
-    // "Punto" B componente y
-    nombre = "@By";
-    if (!action_obj.symbolTable.containsSymbol(nombre)) {
-        action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "Float", "", null));
-    }
-    // "Punto" C componente x
-    nombre = "@Cx";
-    if (!action_obj.symbolTable.containsSymbol(nombre)) {
-        action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "Float", "", null));
-    }
-
-    // "Punto" C componente y
-    nombre = "@Cy";
-    if (!action_obj.symbolTable.containsSymbol(nombre)) {
-        action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "Float", "", null));
-    } */
+    
     // "Punto" componente x
     String nombre = "@vABx";
     if (!action_obj.symbolTable.containsSymbol(nombre)) {
@@ -815,6 +782,11 @@ triangulo ::= CA_CA punto CA_PY punto CA_PY punto CA_CC
     nombre = "@vACy";
     if (!action_obj.symbolTable.containsSymbol(nombre)) {
         action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "Float", "", null));
+    }
+    // Division por dos
+    nombre = "_2.0";
+    if (!action_obj.symbolTable.containsSymbol(nombre)) {
+        action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "Float", "2.0", null));
     }
     // ^ Incorporacion de las variables auxiliares "@" empleadas para la confeccion del programa ^
 
@@ -864,6 +836,7 @@ triangulo ::= CA_CA punto CA_PY punto CA_PY punto CA_CC
     // Area triangulo = abs((@vACx,@vACy).(-@vABy,@vABx))/2 --> abs(@vACx * @vABy * (-1) + @vACy * @vABx)/2
 
     // @vACx * @vABy * (-1)
+    // TODO: Validar cambio de -1 por FCHS del copro o UN terceto llamado CHS
     action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "@vABy", "_" , "_");
     indexTerceto++;
     action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "-1", "_" , "_");
