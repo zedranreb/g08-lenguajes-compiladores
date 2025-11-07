@@ -7,7 +7,7 @@ import java_cup.runtime.Symbol;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
-public class operadorResta implements IOperadorComando {
+public class operadorDivision implements IOperadorComando {
    
     public List<String> ejecutar(Tercetos terceto, HashMap<Integer, String> listaEtiquetas,  ArrayList<Tercetos> listaTercetos, Object trunc) {
         List<String> respuesta = new ArrayList<String>();
