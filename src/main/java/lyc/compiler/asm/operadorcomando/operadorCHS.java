@@ -11,6 +11,14 @@ public class operadorCHS implements IOperadorComando {
    
     public List<String> ejecutar(Tercetos terceto, HashMap<Integer, String> listaEtiquetas,  ArrayList<Tercetos> listaTercetos, Object trunc) {
         List<String> respuesta = new ArrayList<String>();
+        String operador = terceto.getOperador();
+        String operando1 = terceto.getOperando1();
+        
+        if(operando1.contains("@"))
+            respuesta.add("\tFLD " + operando1);
+        else
+            respuesta.add("\tFLD _" + operando1);
+        
         respuesta.add("\tFCHS ");
         
         return respuesta;

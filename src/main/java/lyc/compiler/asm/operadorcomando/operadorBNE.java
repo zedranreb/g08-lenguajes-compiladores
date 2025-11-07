@@ -17,7 +17,7 @@ public class operadorBNE implements IOperadorComando {
 
         int destinoBNE = Integer.parseInt(operando1.replace("[", "").replace("]", ""));
                         
-        if (tercetoLabels.get(destinoBNE) == null) { // si no hay más instrucciones salta a la etiqueta final
+        if (listaEtiquetas.get(destinoBNE) == null) { // si no hay más instrucciones salta a la etiqueta final
             respuesta.add("\tJNE FINAL_LABEL" );
             respuesta.add("");
         } else {

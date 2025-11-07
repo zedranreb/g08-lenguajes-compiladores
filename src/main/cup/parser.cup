@@ -845,9 +845,9 @@ triangulo ::= CA_CA punto CA_PY punto CA_PY punto CA_CC
 
     // @vACx * @vABy * (-1)
     // TODO: Validar cambio de -1 por FCHS del copro o UN terceto llamado CHS
-    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "@vABy", "_" , "_");
-    indexTerceto++;
-    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "CHS", "_" , "_");
+    /* action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "@vABy", "_" , "_");
+    indexTerceto++; */
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "CHS", "@vABy" , "_");
     indexTerceto++;
     /* action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "-1", "_" , "_");
     indexTerceto++;

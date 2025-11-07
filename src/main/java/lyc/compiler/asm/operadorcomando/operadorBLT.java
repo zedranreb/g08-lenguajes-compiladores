@@ -20,7 +20,7 @@ public class operadorBLT implements IOperadorComando {
         if (listaEtiquetas.get(destinoBLT) == null) { // si no hay más instrucciones salta a la etiqueta final
             respuesta.add("\tJB FINAL_LABEL" );
             respuesta.add("");
-            break;
+            
         } else {
             respuesta.add("\tJB " + listaEtiquetas.get(destinoBLT));
             respuesta.add("");
