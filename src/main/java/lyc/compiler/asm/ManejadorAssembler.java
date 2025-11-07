@@ -34,7 +34,22 @@ public class ManejadorAssembler {
 
     private void inicializarComandos() {
         comandos.put(":=", new operadorIgual());
-        comandos.put("=", new operadorIgual());
+        comandos.put("BE", new operadorBE());
+        comandos.put("BEQ", new operadorBEQ());
+        comandos.put("BGE", new operadorBGE());
+        comandos.put("BI", new operadorBI());
+        comandos.put("BLE", new operadorBLE());
+        comandos.put("BLT", new operadorBLT());
+        comandos.put("BNE", new operadorBNE());
+        comandos.put("CHS", new operadorCHS());
+        comandos.put("CMP", new operadorCMP());
+        comandos.put("/", new operadorDivision());
+        comandos.put("READ", new operadorRead());
+        comandos.put("-", new operadorResta());
+        comandos.put("+", new operadorSuma());
+        comandos.put("TRUNC", new operadorTrunc());
+        comandos.put("WRITE", new operadorWrite());
+        comandos.put("WRITELN", new operadorWriteLN());
         comandos.put("DEFAULT", new operadorDEFAULT());
     }
 
@@ -164,19 +179,19 @@ public class ManejadorAssembler {
                 // Extraer logica de desarrollo de instrucciones a patron comando.
                 IOperadorComando cmd = comandos.get(operador);
                 if(cmd == null) cmd = comandos.get("DEFAULT");
-                asmInstructions.addAll(cmd.ejecutar(terceto, tercetoLabels, tercetos, trunc));
+                asmInstructions.addAll(cmd.ejecutar(terceto, tercetoLabels, tercetos, trunc, tabla_simbolos));
                 tercetoIndex++;
 
             } catch (Exception e) {
                 continue;
             }
 
-            asmInstructions.add("\tFINAL_LABEL:");
-            asmInstructions.add("\tMOV AX, 4C00h");
-            asmInstructions.add("\tINT 21h");
-            asmInstructions.add("END START");
         }
-
+        
+        asmInstructions.add("\tFINAL_LABEL:");
+        asmInstructions.add("\tMOV AX, 4C00h");
+        asmInstructions.add("\tINT 21h");
+        asmInstructions.add("END START");
         
     }
 

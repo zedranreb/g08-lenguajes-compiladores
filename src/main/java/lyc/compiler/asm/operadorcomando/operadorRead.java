@@ -10,7 +10,7 @@ import java.util.HashMap;
 
 public class operadorRead implements IOperadorComando {
    
-	public List<String> ejecutar(Tercetos terceto, HashMap<Integer, String> listaEtiquetas,  ArrayList<Tercetos> listaTercetos, Object trunc) {
+	public List<String> ejecutar(Tercetos terceto, HashMap<Integer, String> listaEtiquetas, ArrayList<Tercetos> listaTercetos, Object trunc, ArrayList<Simbolo> tabla_simbolos) {
         String operando1 = terceto.getOperando1();
     	List<String> respuesta = new ArrayList<String>();
     	
