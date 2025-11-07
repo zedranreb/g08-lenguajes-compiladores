@@ -1,8 +1,19 @@
+package lyc.compiler.asm;
+import lyc.compiler.tercetos.*;
+import lyc.compiler.table.*;
+import lyc.compiler.asm.operadorcomando.*;
+import java_cup.runtime.Symbol;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.HashMap;
+
 public class ManejadorAssembler {
     private ArrayList<String> asmInstructions;
     private ArrayList<Simbolo> tabla_simbolos;
     private ArrayList<Tercetos> tercetos;
     private HashMap<Integer, String> tercetoLabels;
+    private final HashMap<String,IOperadorComando> comandos = new HashMap<>();
 
 
     public ManejadorAssembler(ArrayList<Simbolo> tabla_simbolos, ArrayList<Tercetos> tercetos) {
@@ -10,13 +21,21 @@ public class ManejadorAssembler {
         this.tercetos = tercetos;
         this.asmInstructions = new ArrayList<>();
         this.tercetoLabels = new HashMap<>();
+        this.inicializarComandos();
     }
 
-    public void generateAssembler() {
-        asignarEtiquetasATercetos();
-        filtrarEtiquetasBranch();
-        insertarCabezera();
-        insertarTablaDeSimbolos();
+    public void generarAssembler() {
+        this.asignarEtiquetasATercetos();
+        this.filtrarEtiquetasBranch();
+        this.insertarCabezera();
+        this.insertarTablaDeSimbolos();
+        this.insertarCodigoTercetos();
+    }
+
+    private void inicializarComandos() {
+        comandos.put(":=", new operadorIgual());
+        comandos.put("=", new operadorIgual());
+        comandos.put("DEFAULT", new operadorDEFAULT());
     }
 
     private void asignarEtiquetasATercetos() {
@@ -30,7 +49,7 @@ public class ManejadorAssembler {
         // Analizar cuando debe incorporarse incorporarse los saltos por Etiqueta 
         // Almacenar el 61 dentro de una lista para generar una etiqueta que nos permita saltar a este terceto.
         HashMap<Integer, String> branchLabels = new HashMap<>();
-        for(Terceto terceto : tercetos) {
+        for(Tercetos terceto : tercetos) {
             String operador = terceto.getOperador();
             if (       operador.equals("BLE") || operador.equals("BGE") 
                     || operador.equals("BLT") || operador.equals("BGT") 
@@ -39,7 +58,7 @@ public class ManejadorAssembler {
                 ) {
                 try {
                     // Limpiar los corchetes para obtener el número de terceto
-                    int destino = Integer.parseInt(terceto.getOperando1().replace("[", "").replace("]", "").replace("terceto", "").replace("_", ""));
+                    int destino = Integer.parseInt(terceto.getOperando1().replace("[", "").replace("]", "").replace("_", ""));
                     branchLabels.put(destino, tercetoLabels.get(destino));
                 } catch(Exception e) {
                     continue;
@@ -102,5 +121,66 @@ public class ManejadorAssembler {
         asmInstructions.add("truncMode DW 0F7FFH ");
         asmInstructions.add("saltoLinea                  db 0Dh, 0Ah, '$'");
         asmInstructions.add("");
+    }
+
+    private void insertarCodigoTercetos() {
+        asmInstructions.add(".CODE");
+        asmInstructions.add("START:");
+        asmInstructions.add("\tmov AX, @DATA");
+        asmInstructions.add("\tmov DS, AX");
+        asmInstructions.add("fldcw truncMode");
+        asmInstructions.add("");
+        int tercetoIndex = 1;
+        Object trunc = false;
+
+        for(Tercetos terceto : tercetos) {
+            try {
+                String destino = tercetoLabels.get(terceto.getIndice());
+                String operador = terceto.getOperador();
+                String operando1 = terceto.getOperando1();
+                String operando2 = terceto.getOperando2();
+                
+                if (destino == null) {
+                    destino = "FINAL_LABEL";
+                }
+                // Formatear valor datos
+                if(operador.contains(".")) {
+                    String contenido = operador;
+                    if (contenido.startsWith(".")) { // Insertar prefijo
+                        contenido = "0" + contenido; 
+                    } else if (contenido.endsWith(".")) {
+                        contenido = contenido + "00";  // Insertar sufijo
+                    }
+                    contenido = contenido.replace(".", "x");
+                    contenido = "_" + contenido;
+                    operador = contenido;
+                }
+
+                // Agregar etiqueta
+                if (tercetoLabels.containsKey(tercetoIndex)) {
+                    asmInstructions.add(tercetoLabels.get(tercetoIndex) + ":");
+                }
+                
+                // Extraer logica de desarrollo de instrucciones a patron comando.
+                IOperadorComando cmd = comandos.get(operador);
+                if(cmd == null) cmd = comandos.get("DEFAULT");
+                asmInstructions.addAll(cmd.ejecutar(terceto, tercetoLabels, tercetos, trunc));
+                tercetoIndex++;
+
+            } catch (Exception e) {
+                continue;
+            }
+
+            asmInstructions.add("\tFINAL_LABEL:");
+            asmInstructions.add("\tMOV AX, 4C00h");
+            asmInstructions.add("\tINT 21h");
+            asmInstructions.add("END START");
+        }
+
+        
+    }
+
+    public ArrayList<String> getAsmInstructions() {
+        return asmInstructions;
     }
 }

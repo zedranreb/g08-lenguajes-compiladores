@@ -9,6 +9,7 @@ import lyc.compiler.table.*;
 import lyc.compiler.model.*;
 
 import lyc.compiler.tercetos.*;
+import lyc.compiler.asm.*;
 import lyc.compiler.files.*;
 import java.util.Stack;
 import java.util.List;
@@ -38,16 +39,18 @@ action code
     private char puntoTAM = 'A';
 
     public String invertirOperador(String operador) {
-    switch (operador) {
-        case "BGE": return "BLT";  // Mayor o igual -> Menor
-        case "BLE": return "BGT";  // Menor o igual -> Mayor
-        case "BGT": return "BLE";  // Mayor -> Menor o igual
-        case "BLT": return "BGE";  // Menor -> Mayor o igual
-        case "BEQ": return "BNE";  // Igual -> No igual
-        case "BNE": return "BEQ";  // No igual -> Igual
-        default: throw new RuntimeException("Operador no válido para inversión: " + operador);
+        switch (operador)   {
+            case "BGE": return "BLT";  // Mayor o igual -> Menor
+            case "BLE": return "BGT";  // Menor o igual -> Mayor
+            case "BGT": return "BLE";  // Mayor -> Menor o igual
+            case "BLT": return "BGE";  // Menor -> Mayor o igual
+            case "BEQ": return "BNE";  // Igual -> No igual
+            case "BNE": return "BEQ";  // No igual -> Igual
+            default: throw new RuntimeException("Operador no válido para inversión: " + operador);
+        }
     }
-}
+
+    public ManejadorAssembler manejadorAsm = new ManejadorAssembler(symbolTable.getSymbolTable(), manejador_Tercetos.getIntermediateCode());
 :}
 
 parser code
@@ -58,6 +61,10 @@ parser code
 
     public ArrayList<Tercetos> getIntermediateCode() {
             return action_obj.manejador_Tercetos.getIntermediateCode();
+    }
+
+    public ArrayList<String> getAsmInstructions() {
+        return action_obj.manejadorAsm.getAsmInstructions();
     }
 
 :}
@@ -156,9 +163,9 @@ non terminal anio;
 // ========================================================================== //
 // ================ Comienzo del programa
 // ========================================================================== //
-start with programa;
+start with programa ;
 
-programa ::= iniciar lista_sentencia;
+programa ::= iniciar lista_sentencia {: manejadorAsm.generarAssembler(); :};
 // ========================================================================== //
 // ================ F: Declaración de variables
 // ========================================================================== //
@@ -783,6 +790,7 @@ triangulo ::= CA_CA punto CA_PY punto CA_PY punto CA_CC
     if (!action_obj.symbolTable.containsSymbol(nombre)) {
         action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "Float", "", null));
     }
+    // 
     // Division por dos
     nombre = "_2.0";
     if (!action_obj.symbolTable.containsSymbol(nombre)) {
@@ -868,7 +876,7 @@ triangulo ::= CA_CA punto CA_PY punto CA_PY punto CA_CC
     indexTerceto++;
 
     // abs( @vACx * @vABy * (-1) + @vACy * @vABx) / 2
-    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "2", "_", "_");
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "_2.0", "_", "_");
     indexTerceto++;
 
     action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "/", "[" + (indexTerceto - 2) + "]", "[" + (indexTerceto - 1) + "]");
