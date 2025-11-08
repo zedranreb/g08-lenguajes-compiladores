@@ -878,7 +878,7 @@ triangulo ::= CA_CA punto CA_PY punto CA_PY punto CA_CC
     indexTerceto++;
 
     // abs( @vACx * @vABy * (-1) + @vACy * @vABx) / 2
-    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "_2.0", "_", "_");
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "_2x0", "_", "_");
     indexTerceto++;
 
     action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "/", "[" + (indexTerceto - 2) + "]", "[" + (indexTerceto - 1) + "]");

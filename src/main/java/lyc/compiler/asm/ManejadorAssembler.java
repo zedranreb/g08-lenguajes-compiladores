@@ -37,6 +37,7 @@ public class ManejadorAssembler {
         comandos.put("BE", new operadorBE());
         comandos.put("BEQ", new operadorBEQ());
         comandos.put("BGE", new operadorBGE());
+        comandos.put("BGT", new operadorBGT());
         comandos.put("BI", new operadorBI());
         comandos.put("BLE", new operadorBLE());
         comandos.put("BLT", new operadorBLT());
@@ -122,6 +123,7 @@ public class ManejadorAssembler {
                         String nuevoNombre = valor.replace('.','x');
                         symbol.setNombre("_" + nuevoNombre);
                         symbol.setValor(valor);
+                        asmInstructions.add("\t" + symbol.getNombre() + "\t\tdd\t\t" + symbol.getValor());
                     }
                     else {
                         asmInstructions.add("\t" + symbol.getNombre() + "\t\tdd\t\t" + symbol.getValor());
