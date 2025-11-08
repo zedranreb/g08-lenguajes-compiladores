@@ -1059,12 +1059,25 @@ mes ::= INTEGER_CONSTANT:mes {:
         action_obj.symbolTable.addNewSymbols(nuevoSimbolo);
     }
     Simbolo nuevoSimbolo = action_obj.symbolTable.getSymbol(nombre);
+
+    // multiplicacion por 100
+    nombre = "_100.0";
+    if (!action_obj.symbolTable.containsSymbol(nombre)) {
+        action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "Float", "100.0", null));
+    }
+
     /* TERCETO */
     action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, mes.toString(), "_", "_");
     indexTerceto++;
 
     /* Incorporar terceto multiplicar mes por 100 */
-    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "*", "[" + (indexTerceto - 1) + "]", "100");
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "_100x0", "_", "_");
+    indexTerceto++;
+
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "*", "[" + (indexTerceto - 2) + "]", "[" + (indexTerceto - 1) + "]");
+    indexTerceto++;
+
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "+", "[" + (indexTerceto - 1) + "]", "[" + (indexTerceto - 4) + "]");
     indexTerceto++;
 
     RESULT = nuevoSimbolo;
@@ -1078,12 +1091,25 @@ anio ::= INTEGER_CONSTANT:anio {:
         action_obj.symbolTable.addNewSymbols(nuevoSimbolo);
     }
     Simbolo nuevoSimbolo = action_obj.symbolTable.getSymbol(nombre);
+
+    nombre = "_10000.0";
+    if (!action_obj.symbolTable.containsSymbol(nombre)) {
+        action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "Float", "10000.0", null));
+    }
+
     /* TERCETO */
     action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, anio.toString(), "_", "_");
     indexTerceto++;
 
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "_10000x0", "_", "_");
+    indexTerceto++;
+
+
     /* Incorporar terceto multiplicar anio por 1000 */
-    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "*", "[" + (indexTerceto - 1) + "]", "1000");
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "*", "[" + (indexTerceto - 2) + "]", "[" + (indexTerceto - 1) + "]");
+    indexTerceto++;
+
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "+", "[" + (indexTerceto - 1) + "]", "[" + (indexTerceto - 4) + "]");
     indexTerceto++;
 
     RESULT = nuevoSimbolo;
