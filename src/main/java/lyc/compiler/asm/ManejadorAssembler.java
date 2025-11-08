@@ -50,8 +50,8 @@ public class ManejadorAssembler {
         comandos.put("+", new operadorSuma());
         comandos.put("*", new operadorMultiplicacion());
         comandos.put("TRUNC", new operadorTrunc());
-        comandos.put("WRITE", new operadorWrite());
-        comandos.put("WRITELN", new operadorWriteLN());
+        comandos.put("WRITE", new operadorWriteLN());
+        /*comandos.put("WRITELN", new operadorWriteLN());*/
         comandos.put("ABS", new operadorABS());
         comandos.put("DEFAULT", new operadorDEFAULT());
     }

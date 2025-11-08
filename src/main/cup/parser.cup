@@ -37,6 +37,7 @@ action code
     String operadorContrario = "";
     public int terceto_salto = 0;
     private char puntoTAM = 'A';
+    private int indiceStringCte = 1;
 
     public String invertirOperador(String operador) {
         switch (operador)   {
@@ -435,7 +436,7 @@ factor ::= CONST_STR:s
    
 
     String lex = s.toString();
-    String nombre = "_" + s.toString().replace(" ","_");
+    String nombre = "_str" + indiceStringCte++;
     if (!action_obj.symbolTable.containsSymbol(nombre)) {
         action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "String", "\""+lex +"\"", lex.length()));
     }
@@ -635,13 +636,13 @@ escribe ::= CONST_STR:s
 {:
     // Registrar la constante string con prefijo "_"
     String lex = s.toString();
-    String nombre = "_" + s.toString().replace(" ","_");
+    String nombre = "_str" + indiceStringCte++;
     if (!action_obj.symbolTable.containsSymbol(nombre)) {
         action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "String", "\""+lex +"\"", lex.length()));
     }
 
     // Crear el terceto
-    action_obj.manejador_Tercetos.agregarTerceto(new Tercetos(indexTerceto,"WRITE" ,s.toString(), "_"));
+    action_obj.manejador_Tercetos.agregarTerceto(new Tercetos(indexTerceto,"WRITE" ,nombre, "_"));
  
     indexTerceto++;
 
