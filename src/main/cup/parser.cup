@@ -435,9 +435,9 @@ factor ::= CONST_STR:s
    
 
     String lex = s.toString();
-    String nombre = "_" + lex;
+    String nombre = "_" + s.toString().replace(" ","_");
     if (!action_obj.symbolTable.containsSymbol(nombre)) {
-        action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "String", lex, lex.length()-2));
+        action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "String", "\""+lex +"\"", lex.length()));
     }
 
     // Crear el terceto
@@ -635,9 +635,9 @@ escribe ::= CONST_STR:s
 {:
     // Registrar la constante string con prefijo "_"
     String lex = s.toString();
-    String nombre = "_" + lex;
+    String nombre = "_" + s.toString().replace(" ","_");
     if (!action_obj.symbolTable.containsSymbol(nombre)) {
-        action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "String", lex, lex.length()-2));
+        action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "String", "\""+lex +"\"", lex.length()));
     }
 
     // Crear el terceto
