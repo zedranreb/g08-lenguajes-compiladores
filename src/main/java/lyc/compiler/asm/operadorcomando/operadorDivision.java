@@ -31,7 +31,7 @@ public class operadorDivision implements IOperadorComando {
         }
         
         respuesta.add("\tFDIV ");
-        respuesta.add("\tfrndint ");
+        /* respuesta.add("\tfrndint "); */
         
         return respuesta;
     }
