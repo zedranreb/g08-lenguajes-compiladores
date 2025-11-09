@@ -476,16 +476,25 @@ factor ::= TAM OPEN_BRACKET lista_cartesiana CLOSE_BRACKET
     // 'lista_cartesiana' ya valida que las coordenadas sean Int/Float y que los IDs existan.
     int indiceTriangulo1 = action_obj.manejador_Tercetos.obtenerIndice("triangulo1");
     int indiceTriangulo2 = action_obj.manejador_Tercetos.obtenerIndice("triangulo2");
+    
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "@areatriangulo1", "_", "_");
+    indexTerceto++;
+
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "@areatriangulo2", "_", "_");
+    indexTerceto++;
 
     // Realizar la validacion de cual es el triangulo con mayor area
-    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "CMP", "[" + indiceTriangulo1 + "]", "[" + indiceTriangulo2 + "]");
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "CMP", "[" + (indexTerceto - 2) + "]", "[" + (indexTerceto - 1) + "]");
     indexTerceto++;
 
     action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "BGE", "_", "_");
     numerosDeTercetosStack.push(indexTerceto);
     indexTerceto++;
 
-    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, ":=", "[" + indiceTriangulo2 + "]", "@aux");
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "@areatriangulo2", "_", "_");
+    indexTerceto++;
+
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, ":=", "[" + (indexTerceto - 1) + "]", "@aux");
     action_obj.manejador_Tercetos.modificarTerceto(numerosDeTercetosStack.pop(),2,"[" + (indexTerceto + 2) + "]");
     indexTerceto++;
 
@@ -493,7 +502,10 @@ factor ::= TAM OPEN_BRACKET lista_cartesiana CLOSE_BRACKET
     numerosDeTercetosStack.push(indexTerceto);
     indexTerceto++;
 
-    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, ":=", "[" + indiceTriangulo1 + "]", "@aux");
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "@areatriangulo1", "_", "_");
+    indexTerceto++;
+
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, ":=", "[" + (indexTerceto - 1) + "]", "@aux");
     action_obj.manejador_Tercetos.modificarTerceto(numerosDeTercetosStack.pop(),2,"[" + (indexTerceto + 1) + "]");
     indexTerceto++;
 
@@ -756,13 +768,27 @@ sentence ::= TAM OPEN_BRACKET lista_cartesiana CLOSE_BRACKET
             
 lista_cartesiana ::= triangulo 
         {:
-            System.out.println("Area del primer triangulo calcuda");
+            String nombre = "@areatriangulo1";
+            if (!action_obj.symbolTable.containsSymbol(nombre)) {
+                action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "Float", "", null));
+            }
+
+            action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, ":=", "[" + (indexTerceto - 1) + "]", "@areatriangulo1");
+            indexTerceto++;
             action_obj.manejador_Tercetos.agregarIndice("triangulo1", indexTerceto - 1);
+            System.out.println("Area del primer triangulo calcuda");
 
         :}
     CA_PY 
 triangulo
         {:
+            String nombre = "@areatriangulo2";
+            if (!action_obj.symbolTable.containsSymbol(nombre)) {
+                action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, "Float", "", null));
+            }
+            action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, ":=", "[" + (indexTerceto - 1) + "]", "@areatriangulo2");
+            indexTerceto++;
+
             System.out.println("Area del segundo triangulo calcuda");
             action_obj.manejador_Tercetos.agregarIndice("triangulo2", indexTerceto - 1);
         :};
@@ -936,10 +962,7 @@ punto ::= eje:x CA_CO eje:y
     action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, valorX, "_" , "_");
     indexTerceto++;
 
-    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "@" + puntoTAM + "x", "_" , "_");
-    indexTerceto++;
-
-    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "+", "[" + (indexTerceto - 1) + "]", "[" + (indexTerceto - 2) + "]");
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, ":=", "[" + (indexTerceto - 1) + "]", "@" + puntoTAM + "x");
     indexTerceto++;
 
     // Incorporar el valor de x, la variable acumuladora, el valor de y la variable acumuladora y sus respectiva sumas
@@ -947,10 +970,7 @@ punto ::= eje:x CA_CO eje:y
     action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, valorY, "_" , "_");
     indexTerceto++;
 
-    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "@" + puntoTAM + "y", "_" , "_");
-    indexTerceto++;
-
-    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "+", "[" + (indexTerceto - 1) + "]", "[" + (indexTerceto - 2) + "]");
+    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, ":=", "[" + (indexTerceto - 1) + "]", "@" + puntoTAM + "y");
     indexTerceto++;
 
     System.out.println("Punto ("+ puntoTAM +"): " + valorX + "," + valorY);
