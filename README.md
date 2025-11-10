@@ -8,7 +8,6 @@
 * Bernardez, Juan Ignacio
 * Garcia Riveros,Agustin Ignacio
 * Giardelli, Alan Nahuel
-* Rodriguez, Mariano Lionel
 * Rodriguez Bustos, Mariano 
 
 ## Temas especiales asignados:
