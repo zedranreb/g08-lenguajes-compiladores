@@ -1,0 +1,39 @@
+init {
+  a, b , c, h: Int
+  f1, f2, tam : Float
+}
+
+h = 2
+a = 5
+b = a + 7
+c = 1
+a = b + (c * h - 1)
+f1 = 3.0
+f2 = f1 + 2.5
+
+write("El valor de a es: ")
+write(a)
+
+write("El valor de f1 es: ")
+write(f2)
+
+WRITE("IF a > 2020")
+IF ( a > 2020 ) {
+  WRITE("a > 2020 VERDADERO")
+} ELSE {
+  
+  WRITE("a > 2020 falso")
+  
+  WRITE("IF a <= 2020")
+  
+  if(a <= 2020) {
+    
+    WRITE("a <= 2020 VERDADERO")
+
+  }
+}
+
+WRITE("IF c == 1 AND f1 == 3.0")
+IF( c == 1 AND f1 == 3.0 ) {
+    WRITE("c == 1 AND f1 == 3.0 - VERDADERO")
+}

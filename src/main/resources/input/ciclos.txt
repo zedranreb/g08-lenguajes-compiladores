@@ -1,0 +1,21 @@
+init {
+  indice: Int
+  contador : Float
+}
+
+contador = 1.0
+write("Indique cuantas vueltas debe hacer el loop: ")
+read(indice)
+
+while(indice != 0) {
+    while(contador < 5.0) {
+        write("Contador es: ")
+        write(contador)
+        contador = contador + 1.0
+    }
+    indice = indice - 1
+    write(indice)
+}
+
+write("El valor de indice finalizado fue: ")
+write(indice)
