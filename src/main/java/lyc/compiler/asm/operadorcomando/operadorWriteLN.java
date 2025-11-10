@@ -18,6 +18,8 @@ public class operadorWriteLN implements IOperadorComando {
         	respuesta.add("\tDisplayString " + "_"+operando1);
         else if (SymbolTable.getSymbolTypeStatic(operando1, tabla_simbolos)== "String")
         	respuesta.add("\tDisplayString "+operando1);
+        else if (SymbolTable.getSymbolTypeStatic(operando1, tabla_simbolos)== "DATE_CONVERTED")
+        	respuesta.add("\tDisplayFloat "+operando1+",0");
         else if(SymbolTable.getSymbolTypeStatic("_"+operando1, tabla_simbolos)== "Float" ||
         		SymbolTable.getSymbolTypeStatic("_"+operando1, tabla_simbolos)== "Int" )
         	respuesta.add("\tDisplayFloat _" + operando1+ ",2");

@@ -19,7 +19,7 @@
 #+ ========================================================================== +#
 
 init {
-  a, b , c, h: Int
+  a, b , c, h, stop: Int
   f1, f2, tam : Float
   s1 : String
   s2 : String
@@ -67,6 +67,9 @@ IF ( b >= a ) {
 } ELSE {
   b = b + 3
 }
+
+read(stop)
+
 WRITE("======================")
 WRITE("IF b > 3 AND b < 2021")
 IF ( b > 3 AND b < 2021 ) {
@@ -85,6 +88,7 @@ IF ( b >= 3 OR b <= 2021 ) {
   WRITE("FALSO b >= 3 or b <= 2021")
 }
 
+read(stop)
 WRITE("======================")
 WRITE("IF NOT b != 2050")
 IF ( NOT b != 2050) {
@@ -92,7 +96,7 @@ IF ( NOT b != 2050) {
 } ELSE {
   WRITE("FALSO NOT b != 2050")
 }
-
+read(stop)
 WRITE("======================")
 WRITE("IF NOT b == 2050")
 IF ( NOT b == 2050) {
@@ -104,16 +108,24 @@ IF ( NOT b == 2050) {
 #+ ========================================================================== +#
 #+ ================ A: While                                                  +#
 #+ ========================================================================== +#
-
+WRITE("======================")
+WRITE("Valor de a: ")
+WRITE(a)
+WRITE("WHILE a > 0")
 WHILE ( a > 0 ) {
   IF ( b < a ) {
     b = b + 1
+    write("Valor de B: ")
+    write(b)
   } ELSE {
+    write("Valor de a: ")
+    write(a)
     a = a - 1
   }
   a = a - 1
 }
 
+read(stop)
 WRITE("======================")
 WRITE(a)
 WRITE(b)
@@ -129,6 +141,7 @@ WHILE ( f2 > 0.0 ) {
   WRITE(f2)
   }
 
+read(stop)
 WRITE("Ver convdate")
 d = convDate(12-12-2025)
 WRITE(d)
@@ -142,6 +155,7 @@ f1 = triangleAreaMaximum([0,0;1,0;1,1];[1,1;3,1;2,3])
 WRITE(f1)
 f1 = triangleAreaMaximum([0,0;3,0;3,3];[1,1;3,1;2,3])
 WRITE(f1)
+
 #+ ========================================================================== +#
 #+ ================ PRUEBAS VARIAS PARA CORROBORAR ERRORES                    +#
 #+ ========================================================================== +#
