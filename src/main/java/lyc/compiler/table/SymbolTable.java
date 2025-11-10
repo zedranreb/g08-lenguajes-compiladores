@@ -38,6 +38,15 @@ public class SymbolTable {
 		return false;
 	}
 
+	public static String getSymbolTypeStatic(String nombreSimbolo, ArrayList<Simbolo> tablaSimbolos) {
+	     for (Simbolo symbol : tablaSimbolos) {
+	         if (symbol.getNombre().equals(nombreSimbolo)) {
+	                return symbol.getTipoDato();
+	            }
+	     }
+	      return "null";
+	}
+	
 	public Simbolo getSymbol(String symbolName) {
 		for (Simbolo symbol : symbolTable) {
 			if (symbol.getNombre().equals(symbolName)) {

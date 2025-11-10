@@ -184,7 +184,7 @@ COMEN_FIN				= "+#" | "*/"
   /* CONSTANTES NUMERICAS */
   {CONST_FLO}             					 { validarFloat(yytext()); return symbol(ParserSym.CONST_FLO, yytext()); }
   {CONST_INT}               				 { validarEntero(yytext()); return symbol(ParserSym.INTEGER_CONSTANT, yytext()); }
-  {CONST_STR}               				 { validarString(yytext()); return symbol(ParserSym.CONST_STR, yytext()); }
+  {CONST_STR}               				 { validarString(yytext()); return symbol(ParserSym.CONST_STR, yytext().substring(1,yytext().length()-1)); }
   {ID}                     					 { validarID(yytext()); return symbol(ParserSym.IDENTIFIER, yytext()); }
                                 
   {IGNORAR} 						 		 { }
