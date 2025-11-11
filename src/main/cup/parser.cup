@@ -1044,13 +1044,6 @@ fecha ::= dia:dia SUB mes:mes SUB anio:anio {:
     if ( resDia > diasDelMes[resMes - 1] || resDia < 1)
         throw new RuntimeException("ERROR: Dia invalido.");
 
-    /* TERCETO */
-    // Incorporar los tercetos para la sumas de las multiplicaciones individuales
-    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "+", "[" + (indexTerceto - 1) + "]", "[" + (indexTerceto - 3) + "]");
-    indexTerceto++;
-
-    /* Incorporar terceto multiplicar anio por 1000 */
-    action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "+", "[" + (indexTerceto - 1) + "]", "[" + (indexTerceto - 6) + "]");
     action_obj.manejador_Tercetos.agregarIndice("convdate", indexTerceto);
     indexTerceto++;
 :};
