@@ -1,22 +1,182 @@
+#+
+	TEMAS COMUNES:
+	A: While
+	B: If / if - else
+	C: Asignaciones
+	D: Operaciones Aritméticas
+	E: Tipos de datos
+	F: Declaración de variables
+	G: Entrada y salida
+	H: Condiciones
+
+	TEMAS ESPECIALES
+	Z: triangleAreaMaximum
+	X: convDate
++#
+
+#+ ========================================================================== +#
+#+ ================ F: Declaración de variables y E: Tipos de datos           +#
+#+ ========================================================================== +#
+
 init {
-   f1, tam : Float
-   fechaConvertida : DateConverted
+  a, b , c, h, stop: Int
+  f1, f2, tam : Float
+  s1 : String
+  s2 : String
+  d : DateConverted
 }
 
-WRITE("Ver convdate: 12-12-2025")
-fechaConvertida = convDate(12-12-2025)
-WRITE(fechaConvertida)
+#+ ========================================================================== +#
+#+ ================ C: Asignaciones y D: Operaciones Aritméticas              +#
+#+ ========================================================================== +#
+
+a = 5
+b = a + 7
+c = 1
+a = b + c * h
+f1 = 3.0
+f2 = f1 + 2.5
+d = 12-12-2025
+#+ <- Comentario intermedio -> +#
+
+#+ ========================================================================== +#
+#+ ================ G: Entrada y salida                                       +#
+#+ ========================================================================== +#
+WRITE("Escriba el valor de a: ")
+READ(a)
+WRITE("El valor escrito fue: ")
+WRITE(a)
+
+#+ ========================================================================== +#
+#+ ================ B: If / if - else y H: Condiciones                        +#
+#+ ========================================================================== +#
+WRITE("======================")
+WRITE("IF a > 2020")
+IF ( a > 2020 ) {
+  WRITE("a > 2020 VERDADERO")
+} ELSE {
+  WRITE("a > 2020 falso")
+}
+
+IF ( b >= a ) {
+  IF ( c == b ) {
+    a = a + 1
+  } ELSE {
+    c = c + 2
+  }
+} ELSE {
+  b = b + 3
+}
+
+read(stop)
+
+WRITE("======================")
+WRITE("IF b > 3 AND b < 2021")
+IF ( b > 3 AND b < 2021 ) {
+  WRITE("VERDADERO b > 3 or b < 2021")
+} ELSE {
+  WRITE("FALSO b >= 3 or b <= 2021")
+}
+b=2023
+WRITE("======================")
+WRITE("El valor de b es :")
+WRITE(b)
+WRITE("IF b >= 3 OR b <= 2021")
+IF ( b >= 3 OR b <= 2021 ) {
+  WRITE("VERDADERO b >= 3 or b <= 2021")
+} ELSE {
+  WRITE("FALSO b >= 3 or b <= 2021")
+}
+
+read(stop)
+WRITE("======================")
+WRITE("IF NOT b != 2050")
+IF ( NOT b != 2050) {
+  WRITE("VERDADERO NOT b != 2050")
+} ELSE {
+  WRITE("FALSO NOT b != 2050")
+}
+read(stop)
+WRITE("======================")
+WRITE("IF NOT b == 2050")
+IF ( NOT b == 2050) {
+  WRITE("VERDADERO NOT b == 2050")
+} ELSE {
+  WRITE("FALSO NOT b == 2050")
+}
+
+#+ ========================================================================== +#
+#+ ================ A: While                                                  +#
+#+ ========================================================================== +#
+WRITE("======================")
+WRITE("Valor de a: ")
+WRITE(a)
+WRITE("WHILE a > 0")
+WHILE ( a > 0 ) {
+  IF ( b < a ) {
+    b = b + 1
+    write("Valor de B: ")
+    write(b)
+  } ELSE {
+    write("Valor de a: ")
+    write(a)
+    a = a - 1
+  }
+  a = a - 1
+}
+
+read(stop)
+WRITE("======================")
+WRITE(a)
+WRITE(b)
+WRITE("BUCLE f2 > 0.0")
+WHILE ( f2 > 0.0 ) {
+  WHILE ( f1 < f2 ) {
+    f1 = f1 + 1.0
+    WRITE("El valor de f1 es: ")
+    WRITE(f1)
+  }
+  f2 = f2 - 1.0
+  WRITE("El valor de f2 es: ")
+  WRITE(f2)
+  }
+
+read(stop)
+WRITE("Ver convdate")
+d = convDate(12-12-2025)
+WRITE(d)
 
 WRITE("Ver TAM")
 f1 = (1.0*0.0 + 1.0*1.0)/2.0
 WRITE(f1)
 f1 = (1.0*2.0 + 2.0*1.0)/2.0
 WRITE(f1)
+f1 = triangleAreaMaximum([0,0;1,0;1,1];[1,1;3,1;2,3])
+WRITE(f1)
+f1 = triangleAreaMaximum([0,0;3,0;3,3];[1,1;3,1;2,3])
+WRITE(f1)
 
-WRITE("triangleAreaMaximum([0,0;1,0;1,1];[1,1;3,1;2,3])")
-tam = triangleAreaMaximum([0,0;1,0;1,1];[1,1;3,1;2,3])
-WRITE(tam)
+#+ ========================================================================== +#
+#+ ================ PRUEBAS VARIAS PARA CORROBORAR ERRORES                    +#
+#+ ========================================================================== +#
 
-WRITE("triangleAreaMaximum([0,0;3,0;3,3];[1,1;3,1;2,3])")
-tam = triangleAreaMaximum([0,0;3,0;3,3];[1,1;3,1;2,3])
-WRITE(tam)
+#+ Los caracteres que se encuentran prohibidos en los comentarios son: +#
+#+ La letra enie minúscula y mayúscula +#
+#+ La letra u con diériesis minúscula y mayúscula +#
+#+ El caracter circunflujo, la diérisis, la tilde, la tilde francesa y la virgulilla +#
+#+ Sea libre de probarlos incorporandolos en un comentario +#
+
+#+ Para validar el correcto funcionamiento de las cotas del float, descomente la siguiente linea: +#
+#+ f1 = -141679831679834678913789644167413671467938671489467183989173408917340193741980374190387401983749017340198734091873489102734098173489017904871290347198237410983.740918734098173409187348901749310873248+#
+#+f1 = 141679831679834678913789644167413671467938671489467183989173408917340193741980374190387401983749017340198734091873489102734098173489017904871290347198237410983.740918734098173409187348901749310873248+#
+
+#+ Para validar el correcto funcionamiento de las cotas del int, descomente la siguiente linea: +#
+#+ a = 17804930789413417089+#
+#+a = -17804930789413417089+#
+
+#+ Para validar el correcto funcionamiento del largo del string, descomente la siguiente linea: +#
+#+ s1 = "Were talking awayI dont know what Im to sayI'll say it anywayToday is another day to find youShyin' awayOh, I'll be comin' for your love, okay" +#
+
+#+Para validar correcto funcionamiento type mismatch, descomente la siguiente linea: +#
+#+s1=4+#
+#+c="s"+#
