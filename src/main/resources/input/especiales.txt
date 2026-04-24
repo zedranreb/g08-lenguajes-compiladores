@@ -1,10 +1,11 @@
 init {
    f1, tam : Float
+   x : Int
    fechaConvertida : DateConverted
 }
 
-WRITE("Ver convdate: 12-12-2025")
-fechaConvertida = convDate(12-12-2025)
+WRITE("Ver convdate: 25-11-2025")
+fechaConvertida = convDate(25-11-2025)
 WRITE(fechaConvertida)
 
 WRITE("Ver TAM")
@@ -20,3 +21,49 @@ WRITE(tam)
 WRITE("triangleAreaMaximum([0,0;3,0;3,3];[1,1;3,1;2,3])")
 tam = triangleAreaMaximum([0,0;3,0;3,3];[1,1;3,1;2,3])
 WRITE(tam)
+
+#+ ------------------------------------------------------------------ +#
+#+ CICLO ESPECIAL: WHILE x IN [...] DO ... ENDWHILE                   +#
+#+ ------------------------------------------------------------------ +#
+
+#+ Test 1: Iteracion basica sobre lista de enteros                    +#
+#+ Salida esperada: 1  2  3                                           +#
+WRITE("WHILE x IN [1, 2, 3]")
+WHILE x IN [1, 2, 3]
+DO
+    WRITE(x)
+ENDWHILE
+
+#+ Test 2: Iteracion sobre lista de floats                            +#
+#+ Salida esperada: 1.0  2.5  4.0                                     +#
+WRITE("WHILE f1 IN [1.0, 2.5, 4.0]")
+WHILE f1 IN [1.0, 2.5, 4.0]
+DO
+    WRITE(f1)
+ENDWHILE
+
+#+ Test 3: Iteracion con expresiones aritmeticas en la lista          +#
+#+ Salida esperada: 2  4  6                                           +#
+WRITE("WHILE x IN [1+1, 2+2, 3+3]")
+WHILE x IN [1+1, 2+2, 3+3]
+DO
+    WRITE(x)
+ENDWHILE
+
+#+ Test 4: Cuerpo con IF interno — filtra solo pares                  +#
+#+ Salida esperada: 2  4                                              +#
+WRITE("WHILE x IN [1,2,3,4] - solo pares")
+WHILE x IN [1, 2, 3, 4]
+DO
+    IF (x > 1) {
+        WRITE(x)
+    }
+ENDWHILE
+
+#+ Test 5: Lista de un solo elemento                                  +#
+#+ Salida esperada: 7                                                 +#
+WRITE("WHILE x IN [7] - un solo elemento")
+WHILE x IN [7]
+DO
+    WRITE(x)
+ENDWHILE

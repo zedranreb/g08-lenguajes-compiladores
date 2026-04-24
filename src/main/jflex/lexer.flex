@@ -127,6 +127,9 @@ WHILE					= "WHILE" | "while"
 TAM						= "TRIANGLEAREAMAXIMUM" | "triangleAreaMaximum"
 CONV					= "CONVDATE" | "convDate"
 
+IN_KW                   = "IN" | "in"
+DO_KW                   = "DO" | "do"
+ENDWHILE_KW             = "ENDWHILE" | "endwhile"
 COMEN_INI				= "#+" | "/*"
 COMEN_FIN				= "+#" | "*/"
 %%
@@ -172,6 +175,9 @@ COMEN_FIN				= "+#" | "*/"
   {ELSE}					                 { return symbol(ParserSym.ELSE); }
   {WRITE}					                 { return symbol(ParserSym.WRITE); }
   {READ}					                 { return symbol(ParserSym.READ); }
+  {IN_KW}                          { return symbol(ParserSym.IN); }
+  {DO_KW}                          { return symbol(ParserSym.DO); }
+  {ENDWHILE_KW}                    { return symbol(ParserSym.ENDWHILE); }
   {WHILE}					                 { return symbol(ParserSym.WHILE); }
   {TAM}						                 { return symbol(ParserSym.TAM); }
   {CONV}						             { return symbol(ParserSym.CONV); }

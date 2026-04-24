@@ -52,6 +52,24 @@ action code
     }
 
     public ManejadorAssembler manejadorAsm = new ManejadorAssembler(symbolTable.getSymbolTable(), manejador_Tercetos.getIntermediateCode());
+
+/**** Ciclo Especial: WHILE x IN [...] DO...ENDWHILE ****/
+    private int    cicloEspecialN  = 0;
+    private String cicloEspecialId = "";
+
+    /**
+     * Ajusta referencias [n] que apunten dentro del cuerpo del ciclo
+     * cuando se duplican los tercetos para el unrolling.
+     */
+    public String ajustarReferencia(String ref, int bodyStart, int bodyEnd, int offset) {
+    if (ref != null && ref.matches("\\[\\d+\\]")) {
+        int n = Integer.parseInt(ref.substring(1, ref.length() - 1));
+        if (n >= bodyStart && n <= bodyEnd + 1) {
+            return "[" + (n + offset) + "]";
+        }
+    }
+    return ref;
+}
 :}
 
 parser code
@@ -115,6 +133,9 @@ terminal READ;
 terminal WHILE;					
 terminal TAM;						
 terminal CONV;
+terminal IN;
+terminal DO;
+terminal ENDWHILE;
 
 // Non Terminals
 non terminal programa;
@@ -144,6 +165,7 @@ non terminal fecha;
 non terminal dia;
 non terminal mes;
 non terminal anio;
+non terminal lista_ciclo_exprs;
 
 /*
 	TEMAS COMUNES:
@@ -159,6 +181,7 @@ non terminal anio;
 	TEMAS ESPECIALES
 	Z: triangleAreaMaximum
 	X: convDate
+    Y: Ciclo Especial
 */
 
 // ========================================================================== //
@@ -1133,4 +1156,98 @@ anio ::= INTEGER_CONSTANT:anio {:
     indexTerceto++;
 
     RESULT = nuevoSimbolo;
+
 :};
+// ========================================================================== //
+// ================ Y: Ciclo Especial: WHILE x IN [e1,e2,...] DO body ENDWHILE
+// ========================================================================== //
+
+sentence ::= WHILE IDENTIFIER:id IN CA_CA lista_ciclo_exprs CA_CC DO
+            {:
+                 // Validar existencia de la variable de iteración
+                 if (action_obj.symbolTable.getSymbol(id.toString()) == null)
+                     throw new RuntimeException(
+                         "Variable '" + id + "' no declarada en WHILE...IN.");
+
+                 cicloEspecialId = id.toString();
+
+                 // ---- Primera iteración: x = @_IN_1 ----
+                 action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, "@_IN_1", "_", "_");
+                 indexTerceto++;
+                 action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, ":=",
+                         "[" + (indexTerceto - 1) + "]", cicloEspecialId);
+                 indexTerceto++;
+
+                 // Guardar índice de inicio del cuerpo
+                 numerosDeTercetosStack.push(indexTerceto);
+             :}
+             lista_sentencia ENDWHILE
+             {:
+                 int bodyStart = numerosDeTercetosStack.pop();
+                 int bodyEnd   = indexTerceto - 1;
+                 int N         = cicloEspecialN;
+
+                 // ---- Iteraciones 2..N: unrolling ----
+                 for (int ci = 2; ci <= N; ci++) {
+                     String nombreIN = "@_IN_" + ci;
+
+                     // Asignar x = @_IN_ci
+                     action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, nombreIN, "_", "_");
+                     indexTerceto++;
+                     action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, ":=",
+                             "[" + (indexTerceto - 1) + "]", cicloEspecialId);
+                     indexTerceto++;
+
+                     // Copiar tercetos del cuerpo ajustando referencias internas
+                     int offset = indexTerceto - bodyStart;
+                     for (int j = bodyStart; j <= bodyEnd; j++) {
+                         Tercetos t = action_obj.manejador_Tercetos.obtenerTerceto(j);
+                         if (t == null) continue;
+                         String op1 = ajustarReferencia(t.getOperando1(), bodyStart, bodyEnd, offset);
+                         String op2 = ajustarReferencia(t.getOperando2(), bodyStart, bodyEnd, offset);
+                         action_obj.manejador_Tercetos.crearNuevoTerceto(
+                                 indexTerceto, t.getOperador(), op1, op2);
+                         indexTerceto++;
+                     }
+                 }
+
+                 cicloEspecialN = 0; // reset para el próximo ciclo IN
+                 System.out.println("WHILE...IN...DO...ENDWHILE: completado con "
+                         + N + " iteraciones.");
+             :};
+
+lista_ciclo_exprs ::= lista_ciclo_exprs CA_CO expression:e
+             {:
+                 cicloEspecialN++;
+                 int i       = cicloEspecialN;
+                 int exprIdx = action_obj.manejador_Tercetos.obtenerIndice("expression");
+                 String nombre = "@_IN_" + i;
+                 String tipo   = mapaTiposTercetos.get(exprIdx);
+                 if (tipo == null) tipo = "Float";
+
+                 if (!action_obj.symbolTable.containsSymbol(nombre))
+                     action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, tipo, "", null));
+
+                 action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, ":=",
+                         "[" + exprIdx + "]", nombre);
+                 mapaTiposTercetos.put(indexTerceto, tipo);
+                 indexTerceto++;
+             :}
+           | expression:e
+             {:
+                 cicloEspecialN = 1;
+                 int exprIdx   = action_obj.manejador_Tercetos.obtenerIndice("expression");
+                 String nombre = "@_IN_1";
+                 String tipo   = mapaTiposTercetos.get(exprIdx);
+                 if (tipo == null) tipo = "Float";
+
+                 if (!action_obj.symbolTable.containsSymbol(nombre))
+                     action_obj.symbolTable.addNewSymbols(new Simbolo(nombre, tipo, "", null));
+
+                 action_obj.manejador_Tercetos.crearNuevoTerceto(indexTerceto, ":=",
+                         "[" + exprIdx + "]", nombre);
+                 mapaTiposTercetos.put(indexTerceto, tipo);
+                 indexTerceto++;
+             :};
+             
+
